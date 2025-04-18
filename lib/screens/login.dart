@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myproject/colors.dart';
 import 'package:myproject/main.dart';
 import 'package:myproject/reusable_widgets/reusable_widgets.dart';
+import 'package:myproject/screens/signup.dart';
 
 class LogInPage extends StatefulWidget {
   const LogInPage({super.key});
@@ -51,9 +52,9 @@ class _LogInPageState extends State<LogInPage> {
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
-              hexStringToColor("CB2B93"),
-              hexStringToColor("9546C4"),
-              hexStringToColor("5E61F4"),
+              hexStringToColor("B0E0E6"),
+              hexStringToColor("7B68EE"),
+              hexStringToColor("005A9C"),
             ],
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
@@ -98,7 +99,39 @@ class _LogInPageState extends State<LogInPage> {
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
-                  child: const Text("Login"),
+                  child: const Text(
+                    "Login",
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    const Text(
+                      "Don't have an account?",
+                      style: TextStyle(fontSize: 16.0),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        // Navigate to the sign-up page
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const SignUpPage(),
+                          ),
+                        );
+                      },
+                      child: const Text(
+                        "Sign Up",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16.0,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
