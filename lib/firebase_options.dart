@@ -92,4 +92,5 @@ class DefaultFirebaseOptions {
     storageBucket: 'vitawatch-aa8d2.firebasestorage.app',
     measurementId: 'G-YFYWNG75K7',
   );
+
 }

@@ -3,6 +3,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myproject/colors.dart';
 import 'package:myproject/screens/login.dart';
+import 'package:myproject/screens/register.dart';
+import 'package:myproject/screens/register.dart'; // Import the new registration page
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -22,7 +24,7 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  void _handleSignUp() async {
+  void _navigateToRegistration() {
     final email = _emailController.text.trim();
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
@@ -39,24 +41,26 @@ class _SignUpPageState extends State<SignUpPage> {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
+    } else if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Password must be at least 6 characters")),
+      );
+    } else if (!email.contains('@')) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please enter a valid email address")),
+      );
     } else {
-      try {
-        UserCredential userCredential = await FirebaseAuth.instance
-            .createUserWithEmailAndPassword(email: email, password: password);
-
-        await userCredential.user!.updateDisplayName(username);
-        await userCredential.user!.reload();
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => const LogInPage()),
-        );
-      } catch (e) {
-        print("Sign Up Error: $e");
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Sign up failed: $e")));
-      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder:
+              (context) => RegistrationPage(
+                email: email,
+                username: username,
+                password: password,
+              ),
+        ),
+      );
     }
   }
 
@@ -187,7 +191,7 @@ class _SignUpPageState extends State<SignUpPage> {
                 const SizedBox(height: 30),
                 Center(
                   child: ElevatedButton(
-                    onPressed: _handleSignUp,
+                    onPressed: _navigateToRegistration,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: Colors.deepPurple,
@@ -200,7 +204,7 @@ class _SignUpPageState extends State<SignUpPage> {
                       ),
                     ),
                     child: const Text(
-                      "Sign Up",
+                      "Next",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20,
@@ -209,7 +213,6 @@ class _SignUpPageState extends State<SignUpPage> {
                   ),
                 ),
                 const SizedBox(height: 30),
-
                 Center(
                   child: InkWell(
                     onTap: _signInWithGoogle,
@@ -242,7 +245,6 @@ class _SignUpPageState extends State<SignUpPage> {
                     ),
                   ),
                 ),
-
                 const SizedBox(height: 40),
               ],
             ),
