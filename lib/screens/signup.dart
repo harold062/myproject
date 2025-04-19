@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myproject/colors.dart';
-import 'package:myproject/main.dart';
 import 'package:myproject/reusable_widgets/reusable_widgets.dart';
-import 'package:myproject/screens/login.dart';
+import 'package:myproject/main.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -12,34 +11,34 @@ class SignUpPage extends StatefulWidget {
 }
 
 class _SignUpPageState extends State<SignUpPage> {
-  final TextEditingController _userNameTextController = TextEditingController();
-  final TextEditingController _passwordTextController = TextEditingController();
-  final TextEditingController _confirmPasswordTextController =
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _usernameController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _confirmPasswordController =
       TextEditingController();
 
-  @override
-  void dispose() {
-    _userNameTextController.dispose();
-    _passwordTextController.dispose();
-    _confirmPasswordTextController.dispose();
-    super.dispose();
-  }
+  bool _obscurePassword = true;
+  bool _obscureConfirmPassword = true;
 
   void _handleSignUp() {
-    String username = _userNameTextController.text;
-    String password = _passwordTextController.text;
-    String confirmPassword = _confirmPasswordTextController.text;
+    final email = _emailController.text.trim();
+    final username = _usernameController.text.trim();
+    final password = _passwordController.text;
+    final confirmPassword = _confirmPasswordController.text;
 
-    if (username.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+    if (email.isEmpty ||
+        username.isEmpty ||
+        password.isEmpty ||
+        confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Please fill in all fields")),
+        const SnackBar(content: Text("Please fill out all fields")),
       );
     } else if (password != confirmPassword) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
     } else {
-      // Proceed with your sign-up logic
+      // TODO: Add your registration logic here
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(
@@ -51,11 +50,20 @@ class _SignUpPageState extends State<SignUpPage> {
   }
 
   @override
+  void dispose() {
+    _emailController.dispose();
+    _usernameController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -71,82 +79,131 @@ class _SignUpPageState extends State<SignUpPage> {
           child: Padding(
             padding: EdgeInsets.fromLTRB(
               20,
-              MediaQuery.of(context).size.height * 0.2,
+              MediaQuery.of(context).size.height * 0.1,
               20,
               0,
             ),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
-                logoWidget("assets/images/logo.png"),
-                const SizedBox(height: 20),
-                reusableTextField(
-                  "Enter Username",
-                  Icons.person_outline,
-                  false,
-                  _userNameTextController,
+                IconButton(
+                  icon: const Icon(Icons.arrow_back, color: Colors.white),
+                  onPressed: () {
+                    Navigator.pop(context);
+                  },
                 ),
-                const SizedBox(height: 20),
-                reusableTextField(
-                  "Enter Password",
-                  Icons.lock_outline,
-                  true,
-                  _passwordTextController,
-                ),
-                const SizedBox(height: 20),
-                reusableTextField(
-                  "Confirm Password",
-                  Icons.lock,
-                  true,
-                  _confirmPasswordTextController,
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: _handleSignUp,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    foregroundColor: Colors.deepPurple,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 80,
-                      vertical: 15,
-                    ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0),
+                const SizedBox(height: 10),
+                const Center(
+                  child: Text(
+                    "Create Account",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  child: const Text("Sign Up"),
+                ),
+                const SizedBox(height: 40),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _buildInputDecoration("Email", Icons.email),
                 ),
                 const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Text(
-                      "Already have an account?",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    TextButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const LogInPage(),
-                          ),
-                        );
-                      },
-                      child: const Text(
-                        "Log in",
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                TextField(
+                  controller: _usernameController,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _buildInputDecoration("Username", Icons.person),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _buildPasswordInputDecoration(
+                    "Password",
+                    _obscurePassword,
+                    () => setState(() {
+                      _obscurePassword = !_obscurePassword;
+                    }),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _confirmPasswordController,
+                  obscureText: _obscureConfirmPassword,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: _buildPasswordInputDecoration(
+                    "Confirm Password",
+                    _obscureConfirmPassword,
+                    () => setState(() {
+                      _obscureConfirmPassword = !_obscureConfirmPassword;
+                    }),
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Center(
+                  child: ElevatedButton(
+                    onPressed: _handleSignUp,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: Colors.deepPurple,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 80,
+                        vertical: 15,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30.0),
                       ),
                     ),
-                  ],
+                    child: const Text(
+                      "Sign Up",
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                      ),
+                    ),
+                  ),
                 ),
               ],
             ),
           ),
         ),
       ),
+    );
+  }
+
+  InputDecoration _buildInputDecoration(String label, IconData icon) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.white70),
+      prefixIcon: Icon(icon, color: Colors.white70),
+      filled: true,
+      fillColor: Colors.white.withOpacity(0.2),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
+    );
+  }
+
+  InputDecoration _buildPasswordInputDecoration(
+    String label,
+    bool obscure,
+    VoidCallback onToggle,
+  ) {
+    return InputDecoration(
+      labelText: label,
+      labelStyle: const TextStyle(color: Colors.white70),
+      prefixIcon: const Icon(Icons.lock, color: Colors.white70),
+      suffixIcon: IconButton(
+        icon: Icon(
+          obscure ? Icons.visibility : Icons.visibility_off,
+          color: Colors.white70,
+        ),
+        onPressed: onToggle,
+      ),
+      filled: true,
+      fillColor: Colors.white.withOpacity(0.2),
+      border: OutlineInputBorder(borderRadius: BorderRadius.circular(30)),
     );
   }
 }

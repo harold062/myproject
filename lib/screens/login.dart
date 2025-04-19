@@ -12,21 +12,15 @@ class LogInPage extends StatefulWidget {
 }
 
 class _LogInPageState extends State<LogInPage> {
-  final TextEditingController _userNameTextController = TextEditingController();
-  final TextEditingController _passwordTextController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  bool _obscurePassword = true;
 
-  @override
-  void dispose() {
-    _userNameTextController.dispose();
-    _passwordTextController.dispose();
-    super.dispose();
-  }
+  void _handleLogInPage() {
+    String email = _emailController.text.trim();
+    String password = _passwordController.text;
 
-  void _handleLogin() {
-    String username = _userNameTextController.text;
-    String password = _passwordTextController.text;
-
-    if (username.isNotEmpty && password.isNotEmpty) {
+    if (email.isNotEmpty && password.isNotEmpty) {
       Navigator.push(
         context,
         MaterialPageRoute(
@@ -36,9 +30,7 @@ class _LogInPageState extends State<LogInPage> {
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text("Please enter both username and password"),
-        ),
+        const SnackBar(content: Text("Please enter both email and password")),
       );
     }
   }
@@ -47,8 +39,8 @@ class _LogInPageState extends State<LogInPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        width: MediaQuery.of(context).size.width,
-        height: MediaQuery.of(context).size.height,
+        width: double.infinity,
+        height: double.infinity,
         decoration: BoxDecoration(
           gradient: LinearGradient(
             colors: [
@@ -69,25 +61,79 @@ class _LogInPageState extends State<LogInPage> {
               0,
             ),
             child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
               children: <Widget>[
                 logoWidget("assets/images/logo.png"),
-                const SizedBox(height: 20),
-                reusableTextField(
-                  "Enter Username",
-                  Icons.person_outline,
-                  false,
-                  _userNameTextController,
-                ),
-                const SizedBox(height: 20),
-                reusableTextField(
-                  "Enter Password",
-                  Icons.lock_outline,
-                  true,
-                  _passwordTextController,
-                ),
                 const SizedBox(height: 30),
+                TextField(
+                  controller: _emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    labelStyle: const TextStyle(color: Colors.white70),
+                    prefixIcon: const Icon(Icons.email, color: Colors.white70),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.2),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
+                TextField(
+                  controller: _passwordController,
+                  obscureText: _obscurePassword,
+                  style: const TextStyle(color: Colors.white),
+                  decoration: InputDecoration(
+                    labelText: 'Password',
+                    labelStyle: const TextStyle(color: Colors.white70),
+                    prefixIcon: const Icon(Icons.lock, color: Colors.white70),
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility
+                            : Icons.visibility_off,
+                        color: Colors.white70,
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                    filled: true,
+                    fillColor: Colors.white.withOpacity(0.2),
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Align(
+                  alignment: Alignment.centerRight,
+                  child: TextButton(
+                    onPressed: () {
+                      // TODO: Add forgot password functionality
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text("Forgot Password clicked"),
+                        ),
+                      );
+                    },
+                    child: const Text(
+                      "Forgot Password?",
+                      style: TextStyle(
+                        color: Colors.white70,
+                        fontSize: 14.0,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _handleLogin,
+                  onPressed: _handleLogInPage,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.deepPurple,
@@ -100,7 +146,7 @@ class _LogInPageState extends State<LogInPage> {
                     ),
                   ),
                   child: const Text(
-                    "Login",
+                    "Log In",
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
                   ),
                 ),
@@ -110,11 +156,10 @@ class _LogInPageState extends State<LogInPage> {
                   children: <Widget>[
                     const Text(
                       "Don't have an account?",
-                      style: TextStyle(fontSize: 16.0),
+                      style: TextStyle(color: Colors.white, fontSize: 16.0),
                     ),
                     TextButton(
                       onPressed: () {
-                        // Navigate to the sign-up page
                         Navigator.push(
                           context,
                           MaterialPageRoute(
