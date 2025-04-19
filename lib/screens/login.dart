@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:myproject/colors.dart';
 import 'package:myproject/main.dart';
 import 'package:myproject/reusable_widgets/reusable_widgets.dart';
+import 'package:myproject/screens/home.dart';
 import 'package:myproject/screens/signup.dart';
 
 class LogInPage extends StatefulWidget {
@@ -23,10 +24,7 @@ class _LogInPageState extends State<LogInPage> {
     if (email.isNotEmpty && password.isNotEmpty) {
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder:
-              (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
-        ),
+        MaterialPageRoute(builder: (context) => const MyHomePage()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(

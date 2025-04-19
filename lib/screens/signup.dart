@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myproject/colors.dart';
-import 'package:myproject/reusable_widgets/reusable_widgets.dart';
-import 'package:myproject/main.dart';
+import 'package:myproject/screens/login.dart';
 
 class SignUpPage extends StatefulWidget {
   const SignUpPage({super.key});
@@ -20,7 +20,7 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  void _handleSignUp() {
+  void _handleSignUp() async {
     final email = _emailController.text.trim();
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
@@ -38,14 +38,23 @@ class _SignUpPageState extends State<SignUpPage> {
         context,
       ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
     } else {
-      // TODO: Add your registration logic here
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(
-          builder:
-              (context) => const MyHomePage(title: 'Flutter Demo Home Page'),
-        ),
-      );
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password);
+
+        await userCredential.user!.updateDisplayName(username);
+        await userCredential.user!.reload();
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LogInPage()),
+        );
+      } catch (e) {
+        print("Sign Up Error: $e");
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Sign up failed: $e")));
+      }
     }
   }
 
