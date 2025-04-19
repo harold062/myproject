@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myproject/colors.dart';
-import 'package:myproject/main.dart';
 import 'package:myproject/reusable_widgets/reusable_widgets.dart';
+import 'package:myproject/screens/forgot.dart';
 import 'package:myproject/screens/home.dart';
 import 'package:myproject/screens/signup.dart';
 
@@ -16,20 +17,48 @@ class _LogInPageState extends State<LogInPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
   bool _obscurePassword = true;
+  bool _isLoading = false;
 
-  void _handleLogInPage() {
+  void _handleLogInPage() async {
     String email = _emailController.text.trim();
     String password = _passwordController.text;
 
-    if (email.isNotEmpty && password.isNotEmpty) {
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => const MyHomePage()),
-      );
-    } else {
+    if (email.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Please enter both email and password")),
       );
+      return;
+    }
+
+    setState(() => _isLoading = true);
+
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance
+          .signInWithEmailAndPassword(email: email, password: password);
+
+      User? user = userCredential.user;
+
+      if (user != null) {
+        String name = user.displayName ?? "User";
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => MyHomePage(userName: name)),
+        );
+      }
+    } on FirebaseAuthException catch (e) {
+      String message = "Login failed";
+      if (e.code == 'user-not-found') {
+        message = "No user found for that email.";
+      } else if (e.code == 'wrong-password') {
+        message = "Wrong password provided.";
+      }
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(message)));
+    } finally {
+      setState(() => _isLoading = false);
     }
   }
 
@@ -112,10 +141,10 @@ class _LogInPageState extends State<LogInPage> {
                   alignment: Alignment.centerRight,
                   child: TextButton(
                     onPressed: () {
-                      // TODO: Add forgot password functionality
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text("Forgot Password clicked"),
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const ForgotPasswordPage(),
                         ),
                       );
                     },
@@ -131,7 +160,7 @@ class _LogInPageState extends State<LogInPage> {
                 ),
                 const SizedBox(height: 20),
                 ElevatedButton(
-                  onPressed: _handleLogInPage,
+                  onPressed: _isLoading ? null : _handleLogInPage,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: Colors.deepPurple,
@@ -143,10 +172,16 @@ class _LogInPageState extends State<LogInPage> {
                       borderRadius: BorderRadius.circular(30.0),
                     ),
                   ),
-                  child: const Text(
-                    "Log In",
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-                  ),
+                  child:
+                      _isLoading
+                          ? const CircularProgressIndicator()
+                          : const Text(
+                            "Log In",
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20,
+                            ),
+                          ),
                 ),
                 const SizedBox(height: 20),
                 Row(

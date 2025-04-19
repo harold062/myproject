@@ -10,6 +10,10 @@ Image logoWidget(String imageName) {
   );
 }
 
+Image googleWidget(String imageName) {
+  return Image.asset(imageName, fit: BoxFit.fitWidth, height: 50, width: 50);
+}
+
 Container signInSignUpButton(
   BuildContext context,
   bool isLogin,
