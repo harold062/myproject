@@ -3,8 +3,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:myproject/colors.dart';
 import 'package:myproject/screens/login.dart';
-import 'package:myproject/screens/register.dart';
-import 'package:myproject/screens/register.dart'; // Import the new registration page
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 
 class SignUpPage extends StatefulWidget {
@@ -24,7 +22,7 @@ class _SignUpPageState extends State<SignUpPage> {
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
 
-  void _navigateToRegistration() {
+  Future<void> _navigateToRegistration() async {
     final email = _emailController.text.trim();
     final username = _usernameController.text.trim();
     final password = _passwordController.text;
@@ -50,17 +48,37 @@ class _SignUpPageState extends State<SignUpPage> {
         const SnackBar(content: Text("Please enter a valid email address")),
       );
     } else {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder:
-              (context) => RegistrationPage(
-                email: email,
-                username: username,
-                password: password,
+      try {
+        // Create the user in Firebase
+        UserCredential userCredential = await FirebaseAuth.instance
+            .createUserWithEmailAndPassword(email: email, password: password);
+
+        // Send email verification
+        if (userCredential.user != null &&
+            !userCredential.user!.emailVerified) {
+          await userCredential.user!.sendEmailVerification();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                "Verification email sent! Please check your inbox.",
               ),
-        ),
-      );
+            ),
+          );
+        }
+
+        // Sign out to require email verification before login
+        await FirebaseAuth.instance.signOut();
+
+        // Navigate to login page
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LogInPage()),
+        );
+      } on FirebaseAuthException catch (e) {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Signup failed: ${e.message}")));
+      }
     }
   }
 
