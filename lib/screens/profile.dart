@@ -6,6 +6,57 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    Widget buildMenuButton({
+      required IconData icon,
+      required String label,
+      VoidCallback? onTap,
+      bool isLogout = false,
+      String? badge,
+    }) {
+      return ElevatedButton(
+        onPressed: onTap,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: Colors.transparent,
+          foregroundColor: Colors.black,
+          shadowColor: Colors.transparent,
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(10),
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(icon, color: isLogout ? Colors.red : Colors.black),
+            const SizedBox(width: 16),
+            Text(
+              label,
+              style: TextStyle(
+                fontSize: 16,
+                fontFamily: 'PlusJakartaSans',
+                color: isLogout ? Colors.red : Colors.black,
+              ),
+            ),
+            const Spacer(),
+            if (badge != null)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFF8E2DE2),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Text(
+                  badge,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontFamily: 'PlusJakartaSans',
+                  ),
+                ),
+              ),
+          ],
+        ),
+      );
+    }
+
     return Scaffold(
       body: Column(
         children: [
@@ -34,9 +85,7 @@ class ProfileScreen extends StatelessWidget {
                     children: [
                       const CircleAvatar(
                         radius: 50,
-                        backgroundImage: AssetImage(
-                          'assets/images/logo.png',
-                        ), // Make sure the asset path is correct
+                        backgroundImage: AssetImage('assets/images/logo.png'),
                       ),
                       const SizedBox(height: 12),
                       const Text(
@@ -71,77 +120,55 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 24),
               child: Column(
                 children: [
-                  _buildMenuItem(
-                    Icons.medical_information,
-                    'Medical Information',
+                  buildMenuButton(
+                    icon: Icons.medical_information,
+                    label: 'Medical Information',
+                    onTap: () {
+                      // Navigate or show modal
+                    },
                   ),
-                  _buildMenuItem(Icons.health_and_safety, 'Medical Conditions'),
-                  _buildMenuItem(Icons.calendar_today, 'Date of Birth'),
-                  _buildMenuItem(Icons.medication, 'Current Medication'),
-                  _buildMenuItem(Icons.wifi, 'Connect To IOT Devices'),
-                  _buildMenuItem(Icons.settings, 'Settings'),
-                  _buildMenuItem(
-                    Icons.logout,
-                    'Logout',
+                  buildMenuButton(
+                    icon: Icons.health_and_safety,
+                    label: 'Medical Conditions',
+                    onTap: () {},
+                  ),
+                  buildMenuButton(
+                    icon: Icons.calendar_today,
+                    label: 'Date of Birth',
+                    onTap: () {},
+                  ),
+                  buildMenuButton(
+                    icon: Icons.medication,
+                    label: 'Current Medication',
+                    onTap: () {},
+                  ),
+                  buildMenuButton(
+                    icon: Icons.wifi,
+                    label: 'Connect To IOT Devices',
+                    onTap: () {},
+                  ),
+                  buildMenuButton(
+                    icon: Icons.settings,
+                    label: 'Settings',
+                    onTap: () {},
+                  ),
+                  buildMenuButton(
+                    icon: Icons.logout,
+                    label: 'Logout',
                     isLogout: true,
-                  ), // moved before Spacer
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => const LogInPage()),
+                      );
+                    },
+                  ),
                   const Spacer(),
                   const SizedBox(height: 20),
                 ],
               ),
             ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildMenuItem(
-    IconData icon,
-    String label, {
-    String? badge,
-    bool isLogout = false,
-  }) {
-    return ElevatedButton(
-      onPressed: () {
-        if (isLogout) {
-        } else {}
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: Colors.transparent,
-        foregroundColor: Colors.black,
-        shadowColor: Colors.transparent,
-        padding: EdgeInsets.symmetric(vertical: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-      ),
-      child: Row(
-        children: [
-          Icon(icon, color: isLogout ? Colors.red : Colors.black),
-          const SizedBox(width: 16),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 16,
-              fontFamily: 'PlusJakartaSans',
-              color: isLogout ? Colors.red : Colors.black,
-            ),
-          ),
-          const Spacer(),
-          if (badge != null)
-            Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: const Color(0xFF8E2DE2),
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Text(
-                badge,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontFamily: 'PlusJakartaSans',
-                ),
-              ),
-            ),
         ],
       ),
     );
