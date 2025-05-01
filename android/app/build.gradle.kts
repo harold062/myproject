@@ -1,3 +1,6 @@
+implementation 'com.google.firebase:firebase-auth'
+implementation 'com.google.android.gms:play-services-auth'
+
 plugins {
     id("com.android.application")
     // START: FlutterFire Configuration

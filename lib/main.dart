@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:myproject/screens/login.dart';
+import 'package:myproject/screens/profile.dart';
 import 'firebase_options.dart'; // Import generated firebase config
 
 void main() async {
@@ -20,7 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'My Flutter Firebase App',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
-      home: const LogInPage(),
+      home: const ProfileScreen(),
     );
   }
 }
