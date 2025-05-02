@@ -1,6 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:myproject/screens/profile.dart';
+import 'package:myproject/settingFeatures/changePassword.dart';
+import 'package:myproject/settingFeatures/emergencyContact.dart';
+import 'package:myproject/settingFeatures/helpSupport.dart';
+import 'package:myproject/settingFeatures/language.dart';
+import 'package:myproject/settingFeatures/privacyPolicy.dart';
 import 'package:myproject/settingFeatures/profileEdit.dart';
+import 'package:myproject/settingFeatures/remindersAlert.dart';
 
 class Settings extends StatefulWidget {
   const Settings({super.key});
@@ -51,7 +57,12 @@ class _SettingsState extends State<Settings> {
             leading: const Icon(Icons.contacts),
             title: const Text('Emergency Contacts'),
             onTap: () {
-              // Navigate to Emergency Contact setup
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => EmergencyContactsScreen(),
+                ),
+              );
             },
           ),
           // Notifications
@@ -65,7 +76,12 @@ class _SettingsState extends State<Settings> {
             leading: const Icon(Icons.notifications),
             title: const Text('Reminders & Alerts'),
             onTap: () {
-              // Navigate to notification settings
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => RemindersAndAlertsScreen(),
+                ),
+              );
             },
           ),
 
@@ -80,14 +96,10 @@ class _SettingsState extends State<Settings> {
             leading: const Icon(Icons.lock),
             title: const Text('Change Password'),
             onTap: () {
-              // Change password
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.security),
-            title: const Text('Data Sharing Preferences'),
-            onTap: () {
-              // Manage data sharing
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => ChangePasswordScreen()),
+              );
             },
           ),
 
@@ -102,14 +114,12 @@ class _SettingsState extends State<Settings> {
             leading: const Icon(Icons.language),
             title: const Text('Language'),
             onTap: () {
-              // Language options
-            },
-          ),
-          ListTile(
-            leading: const Icon(Icons.accessibility),
-            title: const Text('Accessibility'),
-            onTap: () {
-              // Accessibility options
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const LanguageSettingsScreen(),
+                ),
+              );
             },
           ),
 
@@ -124,14 +134,20 @@ class _SettingsState extends State<Settings> {
             leading: const Icon(Icons.help_outline),
             title: const Text('Help & Support'),
             onTap: () {
-              // Navigate to support
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => HelpAndSupportScreen()),
+              );
             },
           ),
           ListTile(
             leading: const Icon(Icons.policy),
             title: const Text('Privacy Policy'),
             onTap: () {
-              // Show privacy policy
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => PrivacyPolicyScreen()),
+              );
             },
           ),
           ListTile(
