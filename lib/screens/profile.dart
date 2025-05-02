@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:myproject/profileFeatures/settings.dart';
 import 'package:myproject/screens/login.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -124,9 +125,7 @@ class ProfileScreen extends StatelessWidget {
                   buildMenuButton(
                     icon: Icons.medical_information,
                     label: 'Medical Information',
-                    onTap: () {
-                      // Navigate or show modal
-                    },
+                    onTap: () {},
                   ),
                   buildMenuButton(
                     icon: Icons.health_and_safety,
@@ -151,7 +150,12 @@ class ProfileScreen extends StatelessWidget {
                   buildMenuButton(
                     icon: Icons.settings,
                     label: 'Settings',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => Settings()),
+                      );
+                    },
                   ),
                   buildMenuButton(
                     icon: Icons.logout,

@@ -1,0 +1,143 @@
+import 'package:flutter/material.dart';
+import 'package:myproject/screens/profile.dart';
+
+class Settings extends StatefulWidget {
+  const Settings({super.key});
+
+  @override
+  State<Settings> createState() => _SettingsState();
+}
+
+class _SettingsState extends State<Settings> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Settings'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          onPressed: () {
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              (route) => false,
+            );
+          },
+        ),
+      ),
+      body: ListView(
+        children: [
+          const SizedBox(height: 10),
+
+          // Profile Section
+          const ListTile(
+            title: Text(
+              'Profile Settings',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Edit Profile'),
+            onTap: () {
+              // Navigate to Edit Profile screen
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.contacts),
+            title: const Text('Emergency Contacts'),
+            onTap: () {
+              // Navigate to Emergency Contact setup
+            },
+          ),
+          // Notifications
+          const ListTile(
+            title: Text(
+              'Notifications',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.notifications),
+            title: const Text('Reminders & Alerts'),
+            onTap: () {
+              // Navigate to notification settings
+            },
+          ),
+
+          // Data & Security
+          const ListTile(
+            title: Text(
+              'Privacy & Security',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.lock),
+            title: const Text('Change Password'),
+            onTap: () {
+              // Change password
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.security),
+            title: const Text('Data Sharing Preferences'),
+            onTap: () {
+              // Manage data sharing
+            },
+          ),
+
+          // Language & Accessibility
+          const ListTile(
+            title: Text(
+              'General',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.language),
+            title: const Text('Language'),
+            onTap: () {
+              // Language options
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.accessibility),
+            title: const Text('Accessibility'),
+            onTap: () {
+              // Accessibility options
+            },
+          ),
+
+          // Support & Legal
+          const ListTile(
+            title: Text(
+              'Support',
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ),
+          ListTile(
+            leading: const Icon(Icons.help_outline),
+            title: const Text('Help & Support'),
+            onTap: () {
+              // Navigate to support
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.policy),
+            title: const Text('Privacy Policy'),
+            onTap: () {
+              // Show privacy policy
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.info),
+            title: const Text('App Version'),
+            subtitle: const Text('v1.0.0'),
+            onTap: () {},
+          ),
+        ],
+      ),
+    );
+  }
+}
