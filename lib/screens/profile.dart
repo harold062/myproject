@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:myproject/profileFeatures/currentMed.dart';
+import 'package:myproject/profileFeatures/medicalCond.dart';
 import 'package:myproject/profileFeatures/settings.dart';
 import 'package:myproject/screens/login.dart';
 
@@ -7,53 +9,35 @@ class ProfileScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Widget buildMenuButton({
+    Widget buildMenuCard({
       required IconData icon,
       required String label,
+      required String recordsFound,
       VoidCallback? onTap,
-      bool isLogout = false,
-      String? badge,
     }) {
-      return ElevatedButton(
-        onPressed: onTap,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: Colors.transparent,
-          foregroundColor: Colors.black,
-          shadowColor: Colors.transparent,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(10),
+      return Card(
+        margin: const EdgeInsets.only(bottom: 16),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        elevation: 2,
+        child: ListTile(
+          leading: CircleAvatar(
+            backgroundColor: const Color(0xFF8E2DE2),
+            child: Icon(icon, color: Colors.white),
           ),
-        ),
-        child: Row(
-          children: [
-            Icon(icon, color: isLogout ? Colors.red : Colors.black),
-            const SizedBox(width: 16),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 16,
-                fontFamily: 'PlusJakartaSans',
-                color: isLogout ? Colors.red : Colors.black,
-              ),
+          title: Text(
+            label,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
             ),
-            const Spacer(),
-            if (badge != null)
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                decoration: BoxDecoration(
-                  color: const Color(0xFF8E2DE2),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  badge,
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontFamily: 'PlusJakartaSans',
-                  ),
-                ),
-              ),
-          ],
+          ),
+          subtitle: Text(
+            recordsFound,
+            style: const TextStyle(fontSize: 14, color: Colors.black54),
+          ),
+          trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black54),
+          onTap: onTap,
         ),
       );
     }
@@ -71,85 +55,114 @@ class ProfileScreen extends StatelessWidget {
               ),
               borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const SizedBox(height: 20),
-                IconButton(
-                  icon: const Icon(Icons.arrow_back, color: Colors.white),
-                  onPressed: () {
-                    Navigator.pop(context);
-                  },
-                ),
-                const SizedBox(height: 8),
-                Center(
-                  child: Column(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+              child: Column(
+                children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const CircleAvatar(
-                        radius: 50,
-                        backgroundImage: AssetImage('assets/images/logo.png'),
+                      IconButton(
+                        icon: const Icon(Icons.arrow_back, color: Colors.white),
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
                       ),
-                      const SizedBox(height: 12),
                       const Text(
-                        'Harold Selfides',
+                        'Profile',
                         style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.w600,
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          fontFamily: 'ClashDisplay',
                         ),
                       ),
-                      const Text(
-                        'Patient',
-                        style: TextStyle(
-                          fontSize: 14,
-                          color: Colors.white70,
-                          fontFamily: 'ClashDisplay',
-                        ),
-                      ),
+                      const SizedBox(width: 48), // Placeholder for alignment
                     ],
                   ),
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  const CircleAvatar(
+                    radius: 50,
+                    backgroundImage: AssetImage('assets/images/logo.png'),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Harold Selfides',
+                    style: TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.w600,
+                      color: Colors.white,
+                      fontFamily: 'ClashDisplay',
+                    ),
+                  ),
+                  const Text(
+                    'Patient',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Colors.white70,
+                      fontFamily: 'ClashDisplay',
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 20),
 
           // Menu Items
           Expanded(
             child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: Column(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: ListView(
                 children: [
-                  buildMenuButton(
+                  buildMenuCard(
                     icon: Icons.medical_information,
                     label: 'Medical Information',
+                    recordsFound: '4 records found',
                     onTap: () {},
                   ),
-                  buildMenuButton(
+                  buildMenuCard(
                     icon: Icons.health_and_safety,
                     label: 'Medical Conditions',
-                    onTap: () {},
+                    recordsFound: '3 records found',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MedicalConditionsScreen(),
+                        ),
+                      );
+                    },
                   ),
-                  buildMenuButton(
+                  buildMenuCard(
                     icon: Icons.calendar_today,
                     label: 'Date of Birth',
+                    recordsFound: '1 record found',
                     onTap: () {},
                   ),
-                  buildMenuButton(
+                  buildMenuCard(
                     icon: Icons.medication,
                     label: 'Current Medication',
-                    onTap: () {},
+                    recordsFound: '2 records found',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const CurrentMedicationScreen(),
+                        ),
+                      );
+                    },
                   ),
-                  buildMenuButton(
+                  buildMenuCard(
                     icon: Icons.wifi,
                     label: 'Connect To IOT Devices',
+                    recordsFound: 'No records found',
                     onTap: () {},
                   ),
-                  buildMenuButton(
+                  buildMenuCard(
                     icon: Icons.settings,
                     label: 'Settings',
+                    recordsFound: '1 record found',
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
@@ -157,10 +170,10 @@ class ProfileScreen extends StatelessWidget {
                       );
                     },
                   ),
-                  buildMenuButton(
+                  buildMenuCard(
                     icon: Icons.logout,
                     label: 'Logout',
-                    isLogout: true,
+                    recordsFound: '',
                     onTap: () {
                       Navigator.pushReplacement(
                         context,
@@ -168,8 +181,6 @@ class ProfileScreen extends StatelessWidget {
                       );
                     },
                   ),
-                  const Spacer(),
-                  const SizedBox(height: 20),
                 ],
               ),
             ),
