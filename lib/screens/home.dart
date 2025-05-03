@@ -1,249 +1,193 @@
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
-import 'package:myproject/colors.dart';
-import 'package:myproject/screens/login.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myproject/screens/profile.dart'; // Import the Profile Screen
 
-class MyHomePage extends StatefulWidget {
-  final String
-  userName; // Assuming userName might relate to a patient eventually
-
-  const MyHomePage({super.key, required this.userName});
+class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
-  late DatabaseReference _patientsRef;
-  String age = "Loading...";
-  String height = "N/A"; // Not present in the patients node
-  String weight = "N/A"; // Not present in the patients node
-  String bloodType = "N/A"; // Not present in the patients node
-  int steps = 0; // Need to determine where this comes from
-  int calories = 0; // Need to determine where this comes from
-  String patientName = "Loading...";
+class _HomeScreenState extends State<HomeScreen> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  String? userId;
+  Map<String, dynamic>? userData;
+  bool _isLoading = true;
+  bool _isSelected = false;
+  int _currentIndex = 2; // Default to "Home" tab
 
   @override
   void initState() {
     super.initState();
-    _patientsRef = FirebaseDatabase.instance.ref().child('patients');
-    _patientsRef.child(widget.userName).onValue.listen((event) {
-      var snapshot = event.snapshot;
-      if (snapshot.exists) {
-        setState(() {
-          age = snapshot.child('age').value?.toString() ?? "N/A";
-          patientName = snapshot.child('name').value?.toString() ?? "N/A";
-          height = snapshot.child('height').value?.toString() ?? "N/A";
-          weight = snapshot.child('weight').value?.toString() ?? "N/A";
-          bloodType = snapshot.child('bloodType').value?.toString() ?? "N/A";
-        });
-        // You would also need to fetch steps and calories, possibly from the 'devices' node
-        // based on the 'assignedDeviceID'. This would involve another database query.
-        _fetchDeviceData(snapshot.child('assignedDeviceID').value?.toString());
-      } else {
-        setState(() {
-          age = "N/A";
-          patientName = "User not found as patient";
-        });
-      }
-    });
+    _fetchUserData();
   }
 
-  Future<void> _fetchDeviceData(String? deviceID) async {
-    if (deviceID != null) {
-      DatabaseReference _devicesRef = FirebaseDatabase.instance
-          .ref()
-          .child('devices')
-          .child(deviceID);
-      _devicesRef.onValue.listen((event) {
-        var snapshot = event.snapshot;
-        if (snapshot.exists) {
-          // Assuming 'steps' and 'calories' might be under the device node
+  Future<void> _fetchUserData() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        userId = user.uid;
+        DocumentSnapshot userDoc =
+            await _firestore.collection('users').doc(userId).get();
+
+        if (userDoc.exists) {
           setState(() {
-            steps = (snapshot.child('steps').value as num?)?.toInt() ?? 0;
-            calories = (snapshot.child('calories').value as num?)?.toInt() ?? 0;
-            // You might need to adjust the field names based on your actual data
+            userData = userDoc.data() as Map<String, dynamic>;
+            _isLoading = false;
           });
         } else {
-          setState(() {
-            steps = 0;
-            calories = 0;
-          });
+          print('User document not found');
+          setState(() => _isLoading = false);
         }
-      });
-    } else {
-      setState(() {
-        steps = 0;
-        calories = 0;
-      });
+      }
+    } catch (e) {
+      print('Error fetching user data: $e');
+      setState(() => _isLoading = false);
     }
   }
 
-  void _logout(BuildContext context) async {
-    await FirebaseAuth.instance.signOut();
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (context) => const LogInPage()),
-      (route) => false,
-    );
+  void _onTabTapped(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+
+    // Handle navigation based on the selected tab
+    switch (index) {
+      case 0:
+        // Navigate to "Visit" screen
+        break;
+      case 1:
+        // Navigate to "Tracker" screen
+        break;
+      case 2:
+        break;
+      case 3:
+        // Navigate to "Profile" screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        );
+        break;
+      case 4:
+        // Navigate to "More" screen
+        break;
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        width: double.infinity,
-        height: double.infinity,
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [
-              hexStringToColor("B0E0E6"),
-              hexStringToColor("7B68EE"),
-              hexStringToColor("005A9C"),
-            ],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
+      appBar: AppBar(
+        title: const Text(
+          'Home',
+          style: TextStyle(fontWeight: FontWeight.bold),
         ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        backgroundColor: Colors.deepPurple,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context); // Navigate back to the previous screen
+          },
+        ),
+      ),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : userData == null
+              ? const Center(
+                child: Text(
+                  'No user data found.',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                ),
+              )
+              : Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Icon(Icons.arrow_back_ios, color: Colors.white),
                     const Text(
-                      "Profile",
+                      'User Information',
                       style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 22,
+                        fontSize: 20,
                         fontWeight: FontWeight.bold,
+                        color: Colors.deepPurple,
                       ),
                     ),
-                    GestureDetector(
-                      onTap: () => _logout(context),
-                      child: const CircleAvatar(
-                        backgroundImage: AssetImage(
-                          "assets/images/profile.jpg",
-                        ),
-                        radius: 20,
-                      ),
+                    const SizedBox(height: 20),
+                    _buildInfoCard(
+                      icon: Icons.person,
+                      label: 'Name',
+                      value: userData!['name'] ?? 'N/A',
+                    ),
+                    const SizedBox(height: 10),
+                    _buildInfoCard(
+                      icon: Icons.account_circle,
+                      label: 'Username',
+                      value: userData!['uname'] ?? 'N/A',
+                    ),
+                    const SizedBox(height: 10),
+                    _buildInfoCard(
+                      icon: Icons.email,
+                      label: 'Email',
+                      value: userData!['email'] ?? 'N/A',
+                    ),
+                    const SizedBox(height: 10),
+                    _buildInfoCard(
+                      icon: Icons.badge,
+                      label: 'Role',
+                      value: userData!['role'] ?? 'N/A',
                     ),
                   ],
                 ),
-                const SizedBox(height: 15),
-                Text(
-                  "Hello $patientName, you are looking fit",
-                  style: const TextStyle(color: Colors.white70, fontSize: 16),
-                ),
-                const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    crossAxisSpacing: 20,
-                    mainAxisSpacing: 20,
-                    childAspectRatio: 2,
-                    physics: const NeverScrollableScrollPhysics(),
-                    children: [
-                      InfoTile(label: "Age", value: age, unit: "Years"),
-                      InfoTile(label: "Height", value: height, unit: "cm"),
-                      InfoTile(label: "Weight", value: weight, unit: "kg"),
-                      InfoTile(label: "Blood", value: bloodType, unit: "+ve"),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 25),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Chip(
-                      label: const Text("Daily Target"),
-                      backgroundColor: Colors.white,
-                      labelStyle: const TextStyle(color: Colors.black87),
-                    ),
-                    const Text(
-                      "Achieved",
-                      style: TextStyle(color: Colors.white70),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                const Text("Steps", style: TextStyle(color: Colors.white)),
-                const SizedBox(height: 5),
-                LinearProgressIndicator(
-                  value: steps / 10000,
-                  backgroundColor: Colors.white24,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  minHeight: 8,
-                ),
-                const SizedBox(height: 5),
-                Text("$steps", style: const TextStyle(color: Colors.white70)),
-                const SizedBox(height: 20),
-                const Text("Calories", style: TextStyle(color: Colors.white)),
-                const SizedBox(height: 5),
-                LinearProgressIndicator(
-                  value: calories / 10000,
-                  backgroundColor: Colors.white24,
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
-                  minHeight: 8,
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  "$calories",
-                  style: const TextStyle(color: Colors.white70),
-                ),
-              ],
-            ),
+              ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _currentIndex,
+        onTap: _onTabTapped,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: Colors.deepPurple,
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.calendar_today),
+            label: 'Visit',
           ),
-        ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.track_changes),
+            label: 'Tracker',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home, size: 30), // Highlighted "Home" icon
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
+          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
+        ],
       ),
     );
   }
-}
 
-// Helper widget for each tile
-class InfoTile extends StatelessWidget {
-  final String label;
-  final String value;
-  final String unit;
-
-  const InfoTile({
-    super.key,
-    required this.label,
-    required this.value,
-    required this.unit,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          value,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-          ),
+  Widget _buildInfoCard({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 2,
+      child: ListTile(
+        leading: CircleAvatar(
+          backgroundColor: Colors.deepPurple,
+          child: Icon(icon, color: Colors.white),
         ),
-        Text(unit, style: const TextStyle(color: Colors.white70, fontSize: 12)),
-        const SizedBox(height: 5),
-        Text(
-          label,
-          style: const TextStyle(color: Colors.white60, fontSize: 14),
-        ),
-      ],
+        title: Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Text(value),
+      ),
     );
   }
 }

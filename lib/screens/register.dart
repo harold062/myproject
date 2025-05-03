@@ -60,8 +60,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(
-              builder:
-                  (context) => MyHomePage(userName: userCredential.user!.uid),
+              builder: (context) => HomeScreen(),
             ), // Replace with your actual patient home page
           );
         } else {
@@ -172,7 +171,7 @@ class _RegistrationPageState extends State<RegistrationPage> {
                 child:
                     _isLoading
                         ? const CircularProgressIndicator(color: Colors.white)
-                        : const Text('Sign Up'),
+                        : const Text('Register'),
               ),
               if (_errorMessage != null)
                 Padding(
@@ -182,16 +181,6 @@ class _RegistrationPageState extends State<RegistrationPage> {
                     style: const TextStyle(color: Colors.red),
                   ),
                 ),
-              const SizedBox(height: 20),
-              TextButton(
-                onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const LogInPage()),
-                  );
-                },
-                child: const Text("Already have an account? Log in"),
-              ),
             ],
           ),
         ),

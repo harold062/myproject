@@ -1,34 +1,76 @@
 import 'package:flutter/material.dart';
 import 'package:myproject/screens/profile.dart';
 
-class MedicalInfoScreen extends StatelessWidget {
+class MedicalInfoScreen extends StatefulWidget {
   const MedicalInfoScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    Widget buildSection(String title, List<Widget> content) {
-      return Card(
-        margin: const EdgeInsets.only(bottom: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 4,
-        child: ExpansionTile(
-          title: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
-            ),
-          ),
-          children: content,
-        ),
-      );
-    }
+  State<MedicalInfoScreen> createState() => _MedicalInfoScreenState();
+}
 
+class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
+  bool isEditMode = false;
+
+  // Controllers for editable fields
+  final TextEditingController nameController = TextEditingController(
+    text: 'Harold Selfides',
+  );
+  final TextEditingController dateController = TextEditingController(
+    text: '2023-05-12',
+  );
+  final TextEditingController problemController = TextEditingController(
+    text: 'Headache',
+  );
+  final TextEditingController surgeryDetailsController =
+      TextEditingController();
+  final TextEditingController medicationDetailsController =
+      TextEditingController();
+  final TextEditingController allergiesController = TextEditingController();
+
+  // Checkboxes
+  bool hadSurgery = false;
+  bool noMedication = false;
+  bool noAllergies = false;
+
+  // Checkbox options for medical history
+  final Map<String, bool> medicalHistory = {
+    'Breathing Problems': false,
+    'Stroke': false,
+    'Depression': false,
+    'Pregnant': false,
+    'Heart Problems': false,
+    'Kidney Problems': false,
+    'Diabetes': false,
+    'Smoking': false,
+    'Headaches': false,
+  };
+
+  Widget buildSection(String title, IconData icon, List<Widget> content) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 16),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 4,
+      child: ExpansionTile(
+        leading: Icon(icon, color: Colors.deepPurple),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            color: Colors.black87,
+          ),
+        ),
+        children: content,
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Medical Information',
+          'Patient Information Form',
           style: TextStyle(color: Colors.white),
         ),
         backgroundColor: Colors.deepPurple,
@@ -42,96 +84,185 @@ class MedicalInfoScreen extends StatelessWidget {
             );
           },
         ),
+        actions: [
+          IconButton(
+            icon: Icon(
+              isEditMode ? Icons.save : Icons.edit,
+              color: Colors.white,
+            ),
+            onPressed: () {
+              setState(() {
+                isEditMode = !isEditMode;
+              });
+              if (!isEditMode) {
+                // Save logic can be added here (e.g., send data to a server)
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Changes saved successfully!')),
+                );
+              }
+            },
+          ),
+        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: ListView(
           children: [
-            buildSection('1. Personal Information', [
-              const ListTile(title: Text('Full Name: Harold Selfides')),
-              const ListTile(
-                title: Text('Age / Date of Birth: 45 / 1978-05-12'),
+            buildSection('Personal Information', Icons.person, [
+              ListTile(
+                leading: const Icon(Icons.badge, color: Colors.deepPurple),
+                title:
+                    isEditMode
+                        ? TextFormField(
+                          controller: nameController,
+                          decoration: const InputDecoration(labelText: 'Name'),
+                        )
+                        : Text('Name: ${nameController.text}'),
               ),
-              const ListTile(title: Text('Sex / Gender: Male')),
-              const ListTile(title: Text('Contact Information: +1234567890')),
-              const ListTile(
-                title: Text('Emergency Contact(s): Mom - +0987654321'),
+              ListTile(
+                leading: const Icon(
+                  Icons.calendar_today,
+                  color: Colors.deepPurple,
+                ),
+                title:
+                    isEditMode
+                        ? TextFormField(
+                          controller: dateController,
+                          decoration: const InputDecoration(labelText: 'Date'),
+                        )
+                        : Text('Date: ${dateController.text}'),
               ),
-              const ListTile(
-                title: Text('Address: 123 Main Street, City, Country'),
-              ),
-            ]),
-            buildSection('2. Medical History', [
-              const ListTile(
-                title: Text('Chronic Conditions: Diabetes, Hypertension'),
-              ),
-              const ListTile(
-                title: Text('Past Surgeries: Appendectomy (2010)'),
-              ),
-              const ListTile(title: Text('Allergies: Penicillin, Peanuts')),
-              const ListTile(
-                title: Text('Vaccination Record: Fully Vaccinated'),
-              ),
-              const ListTile(
-                title: Text('Previous Illnesses: Pneumonia (2015)'),
-              ),
-            ]),
-            buildSection('3. Medications', [
-              const ListTile(
-                title: Text('Current Medications: Aspirin (100mg, daily)'),
-              ),
-              const ListTile(
-                title: Text('Past Medications: Metformin (2015-2020)'),
-              ),
-              const ListTile(title: Text('Supplements: Vitamin D, Omega-3')),
-            ]),
-            buildSection('4. Clinical Information', [
-              const ListTile(title: Text('Blood Pressure: 120/80 mmHg')),
-              const ListTile(title: Text('Heart Rate: 72 bpm')),
-              const ListTile(title: Text('Temperature: 98.6°F')),
-              const ListTile(title: Text('Oxygen Saturation: 98%')),
-              const ListTile(
-                title: Text('Lab Test Results: Normal CBC, High Cholesterol'),
-              ),
-              const ListTile(
-                title: Text('Imaging Results: Normal X-ray (2023)'),
+              ListTile(
+                leading: const Icon(
+                  Icons.description,
+                  color: Colors.deepPurple,
+                ),
+                title:
+                    isEditMode
+                        ? TextFormField(
+                          controller: problemController,
+                          decoration: const InputDecoration(
+                            labelText: 'Describe Problem',
+                          ),
+                        )
+                        : Text('Describe Problem: ${problemController.text}'),
               ),
             ]),
-            buildSection('5. Physician & Care Info', [
-              const ListTile(
-                title: Text('Primary Care Physician: Dr. John Doe'),
-              ),
-              const ListTile(
-                title: Text('Specialist(s): Cardiologist - Dr. Jane Smith'),
-              ),
-              const ListTile(title: Text('Clinic: City Health Clinic')),
-              const ListTile(title: Text('Last Visit: 2023-04-01')),
-              const ListTile(title: Text('Next Appointment: 2023-10-15')),
+            buildSection('Cause of Current Problem', Icons.warning, [
+              ...[
+                'Car Accident',
+                'Work Injury',
+                'Gradual Onset',
+                'None',
+                'Other',
+              ].map((cause) {
+                return CheckboxListTile(
+                  title: Text(cause),
+                  value: medicalHistory[cause] ?? false,
+                  onChanged:
+                      isEditMode
+                          ? (value) {
+                            setState(() {
+                              medicalHistory[cause] = value!;
+                            });
+                          }
+                          : null,
+                );
+              }).toList(),
             ]),
-            buildSection('6. Lifestyle & Social History', [
-              const ListTile(title: Text('Smoking: No')),
-              const ListTile(title: Text('Alcohol: Occasionally')),
-              const ListTile(title: Text('Diet: Balanced')),
-              const ListTile(title: Text('Exercise: 3 times a week')),
-              const ListTile(title: Text('Sleep Patterns: 7 hours per night')),
-              const ListTile(
-                title: Text('Living Situation: Lives with family'),
+            buildSection('Past Medical History', Icons.history, [
+              ...medicalHistory.keys.map((key) {
+                return CheckboxListTile(
+                  title: Text(key),
+                  value: medicalHistory[key],
+                  onChanged:
+                      isEditMode
+                          ? (value) {
+                            setState(() {
+                              medicalHistory[key] = value!;
+                            });
+                          }
+                          : null,
+                );
+              }).toList(),
+              ListTile(
+                leading: const Icon(
+                  Icons.local_hospital,
+                  color: Colors.deepPurple,
+                ),
+                title:
+                    isEditMode
+                        ? TextFormField(
+                          controller: surgeryDetailsController,
+                          decoration: const InputDecoration(
+                            labelText: 'Surgeries / Hospitalizations',
+                          ),
+                        )
+                        : Text(
+                          'Surgeries / Hospitalizations: ${surgeryDetailsController.text.isEmpty ? "None" : surgeryDetailsController.text}',
+                        ),
               ),
-              const ListTile(title: Text('Occupation: Retired')),
             ]),
-            buildSection('7. Mental & Cognitive Health', [
-              const ListTile(title: Text('Diagnoses: Anxiety, Depression')),
-              const ListTile(title: Text('Cognitive Assessments: Normal')),
-              const ListTile(title: Text('Mood Notes: Stable')),
-            ]),
-            buildSection('8. Emergency Info', [
-              const ListTile(title: Text('DNR Status: No')),
-              const ListTile(
-                title: Text('Medical Conditions to Watch For: Diabetes'),
+            buildSection('Medications', Icons.medication, [
+              CheckboxListTile(
+                title: const Text('No Medication'),
+                value: noMedication,
+                onChanged:
+                    isEditMode
+                        ? (value) {
+                          setState(() {
+                            noMedication = value!;
+                          });
+                        }
+                        : null,
               ),
-              const ListTile(title: Text('Allergic Reactions: Penicillin')),
-              const ListTile(
-                title: Text('Preferred Hospital: City General Hospital'),
+              ListTile(
+                leading: const Icon(
+                  Icons.medical_services,
+                  color: Colors.deepPurple,
+                ),
+                title:
+                    isEditMode
+                        ? TextFormField(
+                          controller: medicationDetailsController,
+                          decoration: const InputDecoration(
+                            labelText: 'Medications (Name, Dose, Reason)',
+                          ),
+                        )
+                        : Text(
+                          'Medications: ${medicationDetailsController.text.isEmpty ? "None" : medicationDetailsController.text}',
+                        ),
+              ),
+            ]),
+            buildSection('Allergies', Icons.warning_amber, [
+              CheckboxListTile(
+                title: const Text('No Known Allergies'),
+                value: noAllergies,
+                onChanged:
+                    isEditMode
+                        ? (value) {
+                          setState(() {
+                            noAllergies = value!;
+                          });
+                        }
+                        : null,
+              ),
+              ListTile(
+                leading: const Icon(
+                  Icons.warning_amber,
+                  color: Colors.deepPurple,
+                ),
+                title:
+                    isEditMode
+                        ? TextFormField(
+                          controller: allergiesController,
+                          decoration: const InputDecoration(
+                            labelText: 'Allergies',
+                          ),
+                        )
+                        : Text(
+                          'Allergies: ${allergiesController.text.isEmpty ? "None" : allergiesController.text}',
+                        ),
               ),
             ]),
           ],

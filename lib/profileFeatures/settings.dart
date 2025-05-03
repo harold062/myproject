@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myproject/screens/profile.dart';
 import 'package:myproject/settingFeatures/changePassword.dart';
 import 'package:myproject/settingFeatures/emergencyContact.dart';
@@ -51,6 +53,41 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+
+  Map<String, dynamic>? profileData;
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileData();
+  }
+
+  Future<void> _fetchProfileData() async {
+    try {
+      User? user = _auth.currentUser;
+      if (user != null) {
+        DocumentSnapshot userDoc =
+            await _firestore.collection('users').doc(user.uid).get();
+
+        if (userDoc.exists) {
+          setState(() {
+            profileData = userDoc.data() as Map<String, dynamic>;
+            _isLoading = false;
+          });
+        } else {
+          print('User document not found');
+          setState(() => _isLoading = false);
+        }
+      }
+    } catch (e) {
+      print('Error fetching profile data: $e');
+      setState(() => _isLoading = false);
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -67,134 +104,146 @@ class _SettingsState extends State<Settings> {
           },
         ),
       ),
-      body: ListView(
-        children: [
-          const SizedBox(height: 10),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView(
+                children: [
+                  const SizedBox(height: 10),
 
-          // Profile Section
-          const ListTile(
-            title: Text(
-              'Profile Settings',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontFamily: 'PlusJakartaSans',
+                  // Profile Section
+                  const ListTile(
+                    title: Text(
+                      'Profile Settings',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'PlusJakartaSans',
+                      ),
+                    ),
+                  ),
+                  buildSettingsTile(
+                    icon: Icons.person,
+                    title: 'Edit Profile',
+                    subtitle: 'Name: ${profileData?['name'] ?? 'N/A'}',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (_) => EditProfileScreen()),
+                      );
+                    },
+                  ),
+                  buildSettingsTile(
+                    icon: Icons.contacts,
+                    title: 'Emergency Contacts',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => EmergencyContactsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // Notifications
+                  const ListTile(
+                    title: Text(
+                      'Notifications',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  buildSettingsTile(
+                    icon: Icons.notifications,
+                    title: 'Reminders & Alerts',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RemindersAndAlertsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // Data & Security
+                  const ListTile(
+                    title: Text(
+                      'Privacy & Security',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  buildSettingsTile(
+                    icon: Icons.lock,
+                    title: 'Change Password',
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ChangePasswordScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // Language & Accessibility
+                  const ListTile(
+                    title: Text(
+                      'General',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  buildSettingsTile(
+                    icon: Icons.language,
+                    title: 'Language',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const LanguageSettingsScreen(),
+                        ),
+                      );
+                    },
+                  ),
+
+                  // Support & Legal
+                  const ListTile(
+                    title: Text(
+                      'Support',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                  buildSettingsTile(
+                    icon: Icons.help_outline,
+                    title: 'Help & Support',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => HelpAndSupportScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  buildSettingsTile(
+                    icon: Icons.policy,
+                    title: 'Privacy Policy',
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PrivacyPolicyScreen(),
+                        ),
+                      );
+                    },
+                  ),
+                  buildSettingsTile(
+                    icon: Icons.info,
+                    title: 'App Version',
+                    subtitle: 'v1.0.0',
+                    onTap: () {},
+                  ),
+                ],
               ),
-            ),
-          ),
-          buildSettingsTile(
-            icon: Icons.person,
-            title: 'Edit Profile',
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => EditProfileScreen()),
-              );
-            },
-          ),
-          buildSettingsTile(
-            icon: Icons.contacts,
-            title: 'Emergency Contacts',
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => EmergencyContactsScreen()),
-              );
-            },
-          ),
-
-          // Notifications
-          const ListTile(
-            title: Text(
-              'Notifications',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          buildSettingsTile(
-            icon: Icons.notifications,
-            title: 'Reminders & Alerts',
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => RemindersAndAlertsScreen(),
-                ),
-              );
-            },
-          ),
-
-          // Data & Security
-          const ListTile(
-            title: Text(
-              'Privacy & Security',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          buildSettingsTile(
-            icon: Icons.lock,
-            title: 'Change Password',
-            onTap: () {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (_) => ChangePasswordScreen()),
-              );
-            },
-          ),
-
-          // Language & Accessibility
-          const ListTile(
-            title: Text(
-              'General',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          buildSettingsTile(
-            icon: Icons.language,
-            title: 'Language',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const LanguageSettingsScreen(),
-                ),
-              );
-            },
-          ),
-
-          // Support & Legal
-          const ListTile(
-            title: Text(
-              'Support',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-          ),
-          buildSettingsTile(
-            icon: Icons.help_outline,
-            title: 'Help & Support',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => HelpAndSupportScreen()),
-              );
-            },
-          ),
-          buildSettingsTile(
-            icon: Icons.policy,
-            title: 'Privacy Policy',
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => PrivacyPolicyScreen()),
-              );
-            },
-          ),
-          buildSettingsTile(
-            icon: Icons.info,
-            title: 'App Version',
-            subtitle: 'v1.0.0',
-            onTap: () {},
-          ),
-        ],
-      ),
     );
   }
 }
