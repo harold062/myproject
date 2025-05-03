@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:myproject/profileFeatures/currentMed.dart';
 import 'package:myproject/profileFeatures/medicalCond.dart';
+import 'package:myproject/profileFeatures/medicalInfo.dart';
 import 'package:myproject/profileFeatures/settings.dart';
 import 'package:myproject/screens/login.dart';
 
@@ -17,27 +18,48 @@ class ProfileScreen extends StatelessWidget {
     }) {
       return Card(
         margin: const EdgeInsets.only(bottom: 16),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        elevation: 2,
-        child: ListTile(
-          leading: CircleAvatar(
-            backgroundColor: const Color(0xFF8E2DE2),
-            child: Icon(icon, color: Colors.white),
-          ),
-          title: Text(
-            label,
-            style: const TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.bold,
-              color: Colors.black87,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        elevation: 4,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: onTap,
+          child: Padding(
+            padding: const EdgeInsets.all(16),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 25,
+                  backgroundColor: const Color(0xFF8E2DE2),
+                  child: Icon(icon, color: Colors.white, size: 28),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        label,
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        recordsFound,
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.black54,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const Icon(Icons.arrow_forward_ios, color: Colors.black54),
+              ],
             ),
           ),
-          subtitle: Text(
-            recordsFound,
-            style: const TextStyle(fontSize: 14, color: Colors.black54),
-          ),
-          trailing: const Icon(Icons.arrow_forward_ios, color: Colors.black54),
-          onTap: onTap,
         ),
       );
     }
@@ -119,7 +141,14 @@ class ProfileScreen extends StatelessWidget {
                     icon: Icons.medical_information,
                     label: 'Medical Information',
                     recordsFound: '4 records found',
-                    onTap: () {},
+                    onTap: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const MedicalInfoScreen(),
+                        ),
+                      );
+                    },
                   ),
                   buildMenuCard(
                     icon: Icons.health_and_safety,
