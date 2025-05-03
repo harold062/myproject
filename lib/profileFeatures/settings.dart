@@ -8,6 +8,41 @@ import 'package:myproject/settingFeatures/privacyPolicy.dart';
 import 'package:myproject/settingFeatures/profileEdit.dart';
 import 'package:myproject/settingFeatures/remindersAlert.dart';
 
+Widget buildSettingsTile({
+  required IconData icon,
+  required String title,
+  String? subtitle,
+  required VoidCallback onTap,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+    child: Container(
+      decoration: BoxDecoration(
+        color: const Color.fromARGB(255, 255, 255, 255),
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.shade300,
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        leading: Icon(icon, color: Colors.black),
+        title: Text(
+          title,
+          style: const TextStyle(fontFamily: 'PlusJakartaSans', fontSize: 16),
+        ),
+        subtitle: subtitle != null ? Text(subtitle) : null,
+        trailing: const Icon(Icons.arrow_forward_ios, size: 16),
+        onTap: onTap,
+      ),
+    ),
+  );
+}
+
 class Settings extends StatefulWidget {
   const Settings({super.key});
 
@@ -40,12 +75,15 @@ class _SettingsState extends State<Settings> {
           const ListTile(
             title: Text(
               'Profile Settings',
-              style: TextStyle(fontWeight: FontWeight.bold),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                fontFamily: 'PlusJakartaSans',
+              ),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.person),
-            title: const Text('Edit Profile'),
+          buildSettingsTile(
+            icon: Icons.person,
+            title: 'Edit Profile',
             onTap: () {
               Navigator.pushReplacement(
                 context,
@@ -53,18 +91,17 @@ class _SettingsState extends State<Settings> {
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.contacts),
-            title: const Text('Emergency Contacts'),
+          buildSettingsTile(
+            icon: Icons.contacts,
+            title: 'Emergency Contacts',
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => EmergencyContactsScreen(),
-                ),
+                MaterialPageRoute(builder: (_) => EmergencyContactsScreen()),
               );
             },
           ),
+
           // Notifications
           const ListTile(
             title: Text(
@@ -72,9 +109,9 @@ class _SettingsState extends State<Settings> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.notifications),
-            title: const Text('Reminders & Alerts'),
+          buildSettingsTile(
+            icon: Icons.notifications,
+            title: 'Reminders & Alerts',
             onTap: () {
               Navigator.pushReplacement(
                 context,
@@ -92,13 +129,13 @@ class _SettingsState extends State<Settings> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.lock),
-            title: const Text('Change Password'),
+          buildSettingsTile(
+            icon: Icons.lock,
+            title: 'Change Password',
             onTap: () {
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => ChangePasswordScreen()),
+                MaterialPageRoute(builder: (_) => ChangePasswordScreen()),
               );
             },
           ),
@@ -110,9 +147,9 @@ class _SettingsState extends State<Settings> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.language),
-            title: const Text('Language'),
+          buildSettingsTile(
+            icon: Icons.language,
+            title: 'Language',
             onTap: () {
               Navigator.push(
                 context,
@@ -130,30 +167,30 @@ class _SettingsState extends State<Settings> {
               style: TextStyle(fontWeight: FontWeight.bold),
             ),
           ),
-          ListTile(
-            leading: const Icon(Icons.help_outline),
-            title: const Text('Help & Support'),
+          buildSettingsTile(
+            icon: Icons.help_outline,
+            title: 'Help & Support',
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => HelpAndSupportScreen()),
+                MaterialPageRoute(builder: (_) => HelpAndSupportScreen()),
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.policy),
-            title: const Text('Privacy Policy'),
+          buildSettingsTile(
+            icon: Icons.policy,
+            title: 'Privacy Policy',
             onTap: () {
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => PrivacyPolicyScreen()),
+                MaterialPageRoute(builder: (_) => PrivacyPolicyScreen()),
               );
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.info),
-            title: const Text('App Version'),
-            subtitle: const Text('v1.0.0'),
+          buildSettingsTile(
+            icon: Icons.info,
+            title: 'App Version',
+            subtitle: 'v1.0.0',
             onTap: () {},
           ),
         ],

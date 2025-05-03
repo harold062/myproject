@@ -45,13 +45,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Edit Profile'),
+        title: const Text(
+          'Edit Profile',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 1,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
-            Navigator.push(
+            Navigator.pushReplacement(
               context,
-              MaterialPageRoute(builder: (context) => Settings()),
+              MaterialPageRoute(builder: (context) => const Settings()),
             );
           },
         ),
@@ -63,18 +68,22 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Stack(
               children: [
                 CircleAvatar(
-                  radius: 50,
+                  radius: 60,
+                  backgroundColor: Colors.grey[300],
                   backgroundImage:
                       _profileImage != null
                           ? FileImage(_profileImage!)
-                          : const AssetImage('assets/default_avatar.png')
+                          : const AssetImage('assets/images/logo.png')
                               as ImageProvider,
                 ),
                 Positioned(
                   bottom: 0,
                   right: 0,
                   child: IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blue),
+                    icon: const Icon(
+                      Icons.camera_alt,
+                      color: Colors.blueAccent,
+                    ),
                     onPressed: _pickImage,
                   ),
                 ),
@@ -87,32 +96,54 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
             child: Column(
               children: [
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Name'),
+                  decoration: InputDecoration(
+                    labelText: 'Name',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   initialValue: name,
                   onSaved: (value) => name = value ?? '',
                   validator:
-                      (value) => value!.isEmpty ? 'Enter your name' : null,
+                      (value) =>
+                          value!.isEmpty ? 'Please enter your name' : null,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Email'),
+                  decoration: InputDecoration(
+                    labelText: 'Email',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   initialValue: email,
                   onSaved: (value) => email = value ?? '',
                   validator:
                       (value) =>
                           value!.contains('@') ? null : 'Enter a valid email',
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 TextFormField(
-                  decoration: const InputDecoration(labelText: 'Birthday'),
+                  decoration: InputDecoration(
+                    labelText: 'Birthday',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   initialValue: birthday,
                   onSaved: (value) => birthday = value ?? '',
                   validator:
-                      (value) => value!.isEmpty ? 'Enter your birthday' : null,
+                      (value) =>
+                          value!.isEmpty ? 'Please enter your birthday' : null,
                 ),
-                const SizedBox(height: 10),
+                const SizedBox(height: 15),
                 DropdownButtonFormField<String>(
-                  decoration: const InputDecoration(labelText: 'Gender'),
+                  decoration: InputDecoration(
+                    labelText: 'Gender',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                   value: gender,
                   items:
                       ['Male', 'Female', 'Other']
@@ -128,6 +159,16 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   icon: const Icon(Icons.save),
                   label: const Text('Save Profile'),
                   onPressed: _saveProfile,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    padding: const EdgeInsets.symmetric(
+                      vertical: 12,
+                      horizontal: 20,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
                 ),
               ],
             ),

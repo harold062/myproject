@@ -18,9 +18,13 @@ class _LanguageSettingsScreenState extends State<LanguageSettingsScreen> {
       setState(() {
         selectedLanguage = newLang;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Language set to $newLang')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Language set to $newLang'),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 2),
+        ),
+      );
       // TODO: Save this to persistent storage (e.g., SharedPreferences) and apply localization
     }
   }
@@ -29,7 +33,12 @@ class _LanguageSettingsScreenState extends State<LanguageSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Language Settings'),
+        title: const Text(
+          'Language Settings',
+          style: TextStyle(color: Colors.black),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 1,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
@@ -44,11 +53,16 @@ class _LanguageSettingsScreenState extends State<LanguageSettingsScreen> {
         padding: const EdgeInsets.all(20.0),
         child: DropdownButtonFormField<String>(
           value: selectedLanguage,
-          decoration: const InputDecoration(labelText: 'Select Language'),
+          decoration: InputDecoration(
+            labelText: 'Select Language',
+            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+          ),
           items:
-              languages.map((lang) {
-                return DropdownMenuItem(value: lang, child: Text(lang));
-              }).toList(),
+              languages
+                  .map(
+                    (lang) => DropdownMenuItem(value: lang, child: Text(lang)),
+                  )
+                  .toList(),
           onChanged: _onLanguageChanged,
         ),
       ),
