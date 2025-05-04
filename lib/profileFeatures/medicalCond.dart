@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myproject/screens/profile.dart';
 
 class MedicalConditionsScreen extends StatefulWidget {
@@ -10,21 +12,63 @@ class MedicalConditionsScreen extends StatefulWidget {
 }
 
 class _MedicalConditionsScreenState extends State<MedicalConditionsScreen> {
-  List<Map<String, dynamic>> conditions = [
-    {'name': 'Hypertension (High Blood Pressure)', 'percentage': 60},
-    {'name': 'High Cholesterol', 'percentage': 51},
-    {'name': 'Obesity', 'percentage': 42},
-    {'name': 'Arthritis', 'percentage': 35},
-    {'name': 'Ischemic / Coronary Heart Disease', 'percentage': 29},
-    {'name': 'Diabetes', 'percentage': 27},
-    {'name': 'Chronic Kidney Disease', 'percentage': 25},
-    {'name': 'Heart Failure', 'percentage': 15},
-    {'name': 'Depression', 'percentage': 16},
-    {'name': 'Alzheimer’s Disease and Dementia', 'percentage': 12},
-  ];
-
+  List<Map<String, dynamic>> conditions = [];
   final _nameController = TextEditingController();
   final _percentageController = TextEditingController();
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchConditions();
+  }
+
+  Future<void> _fetchConditions() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot userDoc =
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .get();
+
+        if (userDoc.exists && userDoc['medicalConditions'] != null) {
+          List<dynamic> fetchedConditions = userDoc['medicalConditions'];
+          setState(() {
+            conditions =
+                fetchedConditions
+                    .map((condition) => Map<String, dynamic>.from(condition))
+                    .toList();
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching medical conditions: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _saveConditions() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({'medicalConditions': conditions});
+      }
+    } catch (e) {
+      print('Error saving medical conditions: $e');
+    }
+  }
 
   void _addCondition() {
     showDialog(
@@ -78,6 +122,7 @@ class _MedicalConditionsScreenState extends State<MedicalConditionsScreen> {
                         'percentage': int.parse(_percentageController.text),
                       });
                     });
+                    _saveConditions(); // Save to Firestore
                   }
                   _nameController.clear();
                   _percentageController.clear();
@@ -145,6 +190,7 @@ class _MedicalConditionsScreenState extends State<MedicalConditionsScreen> {
                         'percentage': int.parse(_percentageController.text),
                       };
                     });
+                    _saveConditions(); // Save to Firestore
                   }
                   _nameController.clear();
                   _percentageController.clear();
@@ -161,6 +207,7 @@ class _MedicalConditionsScreenState extends State<MedicalConditionsScreen> {
     setState(() {
       conditions.removeAt(index);
     });
+    _saveConditions(); // Save to Firestore
   }
 
   @override
@@ -184,50 +231,56 @@ class _MedicalConditionsScreenState extends State<MedicalConditionsScreen> {
           },
         ),
       ),
-      body: ListView.builder(
-        padding: const EdgeInsets.all(16),
-        itemCount: conditions.length,
-        itemBuilder: (context, index) {
-          final condition = conditions[index];
-          return Card(
-            margin: const EdgeInsets.only(bottom: 10),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
-            ),
-            elevation: 2,
-            child: ListTile(
-              leading: CircleAvatar(
-                backgroundColor: Colors.blueAccent,
-                child: Text(
-                  '${condition['percentage']}%',
-                  style: const TextStyle(color: Colors.white),
-                ),
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: conditions.length,
+                itemBuilder: (context, index) {
+                  final condition = conditions[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    elevation: 2,
+                    child: ListTile(
+                      leading: CircleAvatar(
+                        backgroundColor: Colors.blueAccent,
+                        child: Text(
+                          '${condition['percentage']}%',
+                          style: const TextStyle(color: Colors.white),
+                        ),
+                      ),
+                      title: Text(
+                        condition['name'],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black87,
+                        ),
+                      ),
+                      trailing: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          IconButton(
+                            icon: const Icon(
+                              Icons.edit,
+                              color: Colors.blueAccent,
+                            ),
+                            onPressed: () => _editCondition(index),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.delete, color: Colors.red),
+                            onPressed: () => _deleteCondition(index),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
               ),
-              title: Text(
-                condition['name'],
-                style: const TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.black87,
-                ),
-              ),
-              trailing: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                    onPressed: () => _editCondition(index),
-                  ),
-                  IconButton(
-                    icon: const Icon(Icons.delete, color: Colors.red),
-                    onPressed: () => _deleteCondition(index),
-                  ),
-                ],
-              ),
-            ),
-          );
-        },
-      ),
       floatingActionButton: FloatingActionButton(
         onPressed: _addCondition,
         backgroundColor: Colors.blueAccent,

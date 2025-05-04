@@ -1,24 +1,93 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myproject/profileFeatures/medDetails.dart';
 import 'package:myproject/screens/profile.dart';
 
-class CurrentMedicationScreen extends StatelessWidget {
+class CurrentMedicationScreen extends StatefulWidget {
   const CurrentMedicationScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: MedicationListScreen(),
-    );
-  }
+  State<CurrentMedicationScreen> createState() =>
+      _CurrentMedicationScreenState();
 }
 
-class MedicationListScreen extends StatelessWidget {
-  final List<Map<String, String>> medications = [
-    {'name': 'Aspirin', 'time': '09:00 AM'},
-    {'name': 'Cymbalta', 'time': '10:00 AM'},
-    {'name': 'Lexapro', 'time': '03:00 PM'},
-  ];
+class _CurrentMedicationScreenState extends State<CurrentMedicationScreen> {
+  List<Map<String, dynamic>> medications = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchMedications();
+  }
+
+  Future<void> _fetchMedications() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        DocumentSnapshot userDoc =
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(user.uid)
+                .get();
+
+        if (userDoc.exists && userDoc['medications'] != null) {
+          List<dynamic> fetchedMedications = userDoc['medications'];
+          setState(() {
+            medications =
+                fetchedMedications
+                    .map((medication) => Map<String, dynamic>.from(medication))
+                    .toList();
+            _isLoading = false;
+          });
+        } else {
+          setState(() {
+            _isLoading = false;
+          });
+        }
+      }
+    } catch (e) {
+      print('Error fetching medications: $e');
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _saveMedications() async {
+    try {
+      User? user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .update({'medications': medications});
+      }
+    } catch (e) {
+      print('Error saving medications: $e');
+    }
+  }
+
+  void _deleteMedication(int index) {
+    setState(() {
+      medications.removeAt(index);
+    });
+    _saveMedications(); // Save to Firestore
+  }
+
+  Widget _buildDetailRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 2.0),
+      child: Row(
+        children: [
+          Text(label, style: const TextStyle(fontWeight: FontWeight.bold)),
+          const SizedBox(width: 5),
+          Text(value),
+        ],
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,240 +118,104 @@ class MedicationListScreen extends StatelessWidget {
             );
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person, color: Colors.white),
-            onPressed: () {
-              // Profile action
-            },
-          ),
-        ],
       ),
-      body: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                colors: [Color(0xFF8E2DE2), Color(0xFF4A00E0)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: BorderRadius.vertical(bottom: Radius.circular(40)),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'April 4, Wednesday',
-                  style: TextStyle(color: Colors.white, fontSize: 16),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.calendar_today, color: Colors.white),
-                  onPressed: () {
-                    // Calendar action
-                  },
-                ),
-              ],
-            ),
-          ),
-          Expanded(
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: medications.length,
-              itemBuilder: (context, index) {
-                final medication = medications[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 10),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  elevation: 2,
-                  child: ListTile(
-                    leading: const Icon(
-                      Icons.medication,
-                      color: Colors.deepPurple,
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: medications.length,
+                itemBuilder: (context, index) {
+                  final medication = medications[index];
+                  return Card(
+                    margin: const EdgeInsets.only(bottom: 10),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
                     ),
-                    title: Text(
-                      medication['name']!,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    subtitle: Text('Reminder Time: ${medication['time']}'),
-                    trailing: IconButton(
-                      icon: const Icon(
-                        Icons.arrow_forward,
+                    elevation: 2,
+                    child: ExpansionTile(
+                      leading: const Icon(
+                        Icons.medication,
                         color: Colors.deepPurple,
                       ),
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder:
-                                (context) => MedicationDetailsScreen(
-                                  medicationName: medication['name']!,
-                                ),
+                      title: Text(
+                        medication['name'],
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Text('Reminder Time: ${medication['time']}'),
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 8.0,
                           ),
-                        );
-                      },
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              _buildDetailRow(
+                                'Dosage:',
+                                '${medication['dosage'] ?? 'N/A'} times per day',
+                              ),
+                              _buildDetailRow(
+                                'Time of Intake:',
+                                medication['intakeTime'] ??
+                                    medication['time'] ??
+                                    'N/A',
+                              ),
+                              _buildDetailRow(
+                                'Total Weeks:',
+                                '${medication['totalWeeks'] ?? 'N/A'}',
+                              ),
+                              _buildDetailRow(
+                                'Weeks Left:',
+                                '${medication['weeksLeft'] ?? 'N/A'}',
+                              ),
+                              _buildDetailRow(
+                                'Total Tablets:',
+                                '${medication['totalTablets'] ?? 'N/A'}',
+                              ),
+                              _buildDetailRow(
+                                'Tablets Left:',
+                                '${medication['tabletsLeft'] ?? 'N/A'}',
+                              ),
+                            ],
+                          ),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: const Icon(
+                                Icons.edit,
+                                color: Colors.blueAccent,
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => MedicationDetailsScreen(
+                                          medication: medication,
+                                          index: index,
+                                        ),
+                                  ),
+                                );
+                              },
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete, color: Colors.red),
+                              onPressed: () => _deleteMedication(index),
+                            ),
+                          ],
+                        ),
+                      ],
                     ),
-                  ),
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => AddEditScheduleScreen()),
-          );
-        },
-        backgroundColor: Colors.deepPurple,
-        child: const Icon(Icons.add),
-      ),
-    );
-  }
-}
-
-class MedicationDetailsScreen extends StatelessWidget {
-  final String medicationName;
-
-  const MedicationDetailsScreen({required this.medicationName, super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(medicationName),
-        backgroundColor: Colors.deepPurple,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Center(
-              child: Icon(
-                Icons.medication,
-                size: 100,
-                color: Colors.deepPurple,
+                  );
+                },
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'Dosage: 3 times (9 AM, 3 PM, 9 PM)',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Program: Total 8 weeks, 6 weeks left',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const SizedBox(height: 10),
-            Text(
-              'Quantity: Total 168 tablets, 126 tablets left',
-              style: const TextStyle(fontSize: 16),
-            ),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => AddEditScheduleScreen(),
-                  ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Change Schedule',
-                style: TextStyle(fontSize: 16, color: Colors.black),
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-class AddEditScheduleScreen extends StatelessWidget {
-  final TextEditingController _reminderTimeController = TextEditingController();
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Add/Edit Schedule'),
-        backgroundColor: Colors.deepPurple,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            DropdownButtonFormField<String>(
-              decoration: InputDecoration(
-                labelText: 'Medicine Type',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-              items: const [
-                DropdownMenuItem(value: 'Tablet', child: Text('Tablet')),
-                DropdownMenuItem(value: 'Capsule', child: Text('Capsule')),
-                DropdownMenuItem(value: 'Drops', child: Text('Drops')),
-                DropdownMenuItem(value: 'Injection', child: Text('Injection')),
-              ],
-              onChanged: (value) {},
-            ),
-            const SizedBox(height: 15),
-            TextField(
-              controller: _reminderTimeController,
-              decoration: InputDecoration(
-                labelText: 'Reminder Time',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-              ),
-            ),
-            const SizedBox(height: 15),
-            SwitchListTile(
-              title: const Text('Enable Alarm'),
-              value: true,
-              onChanged: (value) {},
-            ),
-            const Spacer(),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.amber,
-                padding: const EdgeInsets.symmetric(vertical: 16),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              child: const Text(
-                'Add Schedule',
-                style: TextStyle(fontSize: 16, color: Colors.black),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
