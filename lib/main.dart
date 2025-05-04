@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:myproject/profileFeatures/settings.dart';
 import 'package:myproject/screens/home.dart';
 import 'package:myproject/screens/login.dart';
 import 'package:myproject/screens/profile.dart';
