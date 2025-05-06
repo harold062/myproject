@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:myproject/screens/profile.dart'; // Import the Profile Screen
+import 'package:myproject/screens/profile.dart';
+import 'package:myproject/settingFeatures/emergencyContact.dart'
+    as emergency; // Alias for EmergencyContactsScreen
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -18,7 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Map<String, dynamic>? userData;
   bool _isLoading = true;
   bool _isSelected = false;
-  int _currentIndex = 2; // Default to "Home" tab
+  int _currentIndex = 0; // Default to "Home" tab
 
   @override
   void initState() {
@@ -55,25 +57,27 @@ class _HomeScreenState extends State<HomeScreen> {
       _currentIndex = index;
     });
 
-    // Handle navigation based on the selected tab
     switch (index) {
       case 0:
-        // Navigate to "Visit" screen
+        // Navigate to Home Screen
         break;
       case 1:
-        // Navigate to "Tracker" screen
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const emergency.EmergencyContactsScreen(),
+          ),
+        );
         break;
       case 2:
+        // Navigate to Favorites/Starred Screen
         break;
       case 3:
-        // Navigate to "Profile" screen
+        // Navigate to Profile Screen
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => const ProfileScreen()),
         );
-        break;
-      case 4:
-        // Navigate to "More" screen
         break;
     }
   }
@@ -148,25 +152,28 @@ class _HomeScreenState extends State<HomeScreen> {
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.deepPurple,
-        unselectedItemColor: Colors.grey,
-        showSelectedLabels: true,
-        showUnselectedLabels: true,
+        selectedItemColor:
+            Colors.deepPurple, // Highlighted color for selected icon
+        unselectedItemColor: Colors.grey, // Color for unselected icons
+        showSelectedLabels: false, // Hide labels
+        showUnselectedLabels: false, // Hide labels
         items: const [
           BottomNavigationBarItem(
-            icon: Icon(Icons.calendar_today),
-            label: 'Visit',
+            icon: Icon(Icons.home),
+            label: '', // No label
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.track_changes),
-            label: 'Tracker',
+            icon: Icon(Icons.grid_view),
+            label: '', // No label
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.home, size: 30), // Highlighted "Home" icon
-            label: 'Home',
+            icon: Icon(Icons.star),
+            label: '', // No label
           ),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
-          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: '', // No label
+          ),
         ],
       ),
     );

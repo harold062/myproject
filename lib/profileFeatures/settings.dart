@@ -3,7 +3,8 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myproject/screens/profile.dart';
 import 'package:myproject/settingFeatures/changePassword.dart';
-import 'package:myproject/settingFeatures/emergencyContact.dart';
+import 'package:myproject/settingFeatures/emergencyContact.dart'
+    as emergencyContact;
 import 'package:myproject/settingFeatures/helpSupport.dart';
 import 'package:myproject/settingFeatures/language.dart';
 import 'package:myproject/settingFeatures/privacyPolicy.dart';
@@ -139,7 +140,8 @@ class _SettingsState extends State<Settings> {
                       Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => EmergencyContactsScreen(),
+                          builder:
+                              (_) => emergencyContact.EmergencyContactsScreen(),
                         ),
                       );
                     },
