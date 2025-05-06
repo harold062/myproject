@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:myproject/screens/profile.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:myproject/screens/profile.dart' as profile;
 import 'package:myproject/screens/home.dart' as home;
 
 class EmergencyContactsScreen extends StatefulWidget {
@@ -11,7 +12,13 @@ class EmergencyContactsScreen extends StatefulWidget {
 }
 
 class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _phoneController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
+
   int _currentIndex = 1; // Default to "Emergency Contacts" tab
+  bool _isEditing = false; // Tracks whether the "Edit" mode is active
 
   void _onTabTapped(int index) {
     setState(() {
@@ -33,28 +40,96 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
         // Navigate to Favorites/Starred Screen
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+          MaterialPageRoute(
+            builder: (context) => const profile.ProfileScreen(),
+          ),
         );
         break;
     }
   }
 
+  Future<void> _addOrEditContact({String? id}) async {
+    _nameController.clear();
+    _phoneController.clear();
+    _descriptionController.clear();
+
+    if (id != null) {
+      // If editing, pre-fill the fields with existing data
+      DocumentSnapshot doc =
+          await _firestore.collection('contacts').doc(id).get();
+      _nameController.text = doc['name'];
+      _phoneController.text = doc['phone'];
+      _descriptionController.text = doc['description'];
+    }
+
+    showDialog(
+      context: context,
+      builder:
+          (_) => AlertDialog(
+            title: Text(id == null ? 'Add Contact' : 'Edit Contact'),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: _nameController,
+                  decoration: const InputDecoration(labelText: 'Name'),
+                ),
+                TextField(
+                  controller: _phoneController,
+                  decoration: const InputDecoration(labelText: 'Phone'),
+                  keyboardType: TextInputType.phone,
+                ),
+                TextField(
+                  controller: _descriptionController,
+                  decoration: const InputDecoration(labelText: 'Description'),
+                ),
+              ],
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  if (id == null) {
+                    // Add new contact
+                    await _firestore.collection('contacts').add({
+                      'name': _nameController.text,
+                      'phone': _phoneController.text,
+                      'description': _descriptionController.text,
+                    });
+                  } else {
+                    // Update existing contact
+                    await _firestore.collection('contacts').doc(id).update({
+                      'name': _nameController.text,
+                      'phone': _phoneController.text,
+                      'description': _descriptionController.text,
+                    });
+                  }
+                  Navigator.pop(context);
+                },
+                child: const Text('Save'),
+              ),
+            ],
+          ),
+    );
+  }
+
+  Future<void> _deleteContact(String id) async {
+    await _firestore.collection('contacts').doc(id).delete();
+  }
+
   @override
   Widget build(BuildContext context) {
-    // Get screen dimensions
     final double screenWidth = MediaQuery.of(context).size.width;
     final double screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
       floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Add new contact functionality
-        },
-        backgroundColor: Colors.indigo[900], // Background color of the button
-        child: const Icon(
-          Icons.add,
-          color: Colors.white, // Set the plus sign color to white
-        ),
+        onPressed: () => _addOrEditContact(),
+        backgroundColor: Colors.indigo[900],
+        child: const Icon(Icons.add, color: Colors.white),
       ),
       body: Container(
         width: screenWidth,
@@ -106,12 +181,14 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                           ),
                           const Spacer(),
                           TextButton(
-                            child: const Text(
-                              'Edit',
-                              style: TextStyle(color: Colors.white),
+                            child: Text(
+                              _isEditing ? 'Done' : 'Edit',
+                              style: const TextStyle(color: Colors.white),
                             ),
                             onPressed: () {
-                              // Edit functionality
+                              setState(() {
+                                _isEditing = !_isEditing;
+                              });
                             },
                           ),
                         ],
@@ -168,31 +245,41 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
                     const SizedBox(height: 8),
                     // List of contacts
                     Expanded(
-                      child: ListView(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        children: [
-                          _buildContactCard(
-                            name: 'John S. Doe',
-                            phone: '+0912 3456 7891',
-                            description: 'Guardian',
-                            isOnline: true,
-                          ),
-                          _buildContactCard(
-                            name: 'ABC HOSPITAL',
-                            phone: '+0912 3456 7891',
-                            description: 'Primary emergency dial',
-                          ),
-                          _buildContactCard(
-                            name: 'Barangay Emergency Responders',
-                            phone: '+0912 3456 7891',
-                            description: 'Primary emergency dial',
-                          ),
-                          _buildContactCard(
-                            name: 'National Emergency Hotline',
-                            phone: '911',
-                            description: 'Primary emergency dial',
-                          ),
-                        ],
+                      child: StreamBuilder<QuerySnapshot>(
+                        stream: _firestore.collection('contacts').snapshots(),
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState ==
+                              ConnectionState.waiting) {
+                            return const Center(
+                              child: CircularProgressIndicator(),
+                            );
+                          }
+
+                          if (!snapshot.hasData ||
+                              snapshot.data!.docs.isEmpty) {
+                            return const Center(
+                              child: Text('No contacts found.'),
+                            );
+                          }
+
+                          final contacts = snapshot.data!.docs;
+
+                          return ListView.builder(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16.0,
+                            ),
+                            itemCount: contacts.length,
+                            itemBuilder: (context, index) {
+                              final contact = contacts[index];
+                              return _buildContactCard(
+                                id: contact.id,
+                                name: contact['name'],
+                                phone: contact['phone'],
+                                description: contact['description'],
+                              );
+                            },
+                          );
+                        },
                       ),
                     ),
                   ],
@@ -206,46 +293,33 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
         currentIndex: _currentIndex,
         onTap: _onTabTapped,
         type: BottomNavigationBarType.fixed,
-        selectedItemColor:
-            Colors.deepPurple, // Highlighted color for selected icon
-        unselectedItemColor: Colors.grey, // Color for unselected icons
-        showSelectedLabels: false, // Hide labels
-        showUnselectedLabels: false, // Hide labels
+        selectedItemColor: Colors.deepPurple,
+        unselectedItemColor: Colors.grey,
+        showSelectedLabels: false,
+        showUnselectedLabels: false,
         items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '', // No label
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: '', // No label
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '', // No label
-          ),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: ''),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: ''),
         ],
       ),
     );
   }
 
   Widget _buildContactCard({
+    required String id,
     required String name,
     required String phone,
     required String description,
-    bool isOnline = false,
   }) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16.0),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12.0)),
       elevation: 2,
       child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: isOnline ? Colors.green : Colors.blueAccent,
-          child: Icon(
-            isOnline ? Icons.check_circle : Icons.phone,
-            color: Colors.white,
-          ),
+        leading: const CircleAvatar(
+          backgroundColor: Colors.blueAccent,
+          child: Icon(Icons.phone, color: Colors.white),
         ),
         title: Text(
           name,
@@ -254,28 +328,46 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
         subtitle: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              phone,
-              style: const TextStyle(fontSize: 14, color: Colors.black54),
-            ),
+            Text(phone, style: const TextStyle(fontSize: 14)),
             const SizedBox(height: 4),
-            Text(
-              description,
-              style: TextStyle(
-                fontSize: 12,
-                color: isOnline ? Colors.green : Colors.black54,
-                fontWeight: isOnline ? FontWeight.bold : FontWeight.normal,
-              ),
-            ),
+            Text(description, style: const TextStyle(fontSize: 12)),
           ],
         ),
-        trailing: IconButton(
-          icon: const Icon(Icons.phone, color: Colors.blue),
-          onPressed: () {
-            // Call functionality
-          },
-        ),
+        trailing:
+            _isEditing
+                ? Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () => _addOrEditContact(id: id),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _deleteContact(id),
+                    ),
+                  ],
+                )
+                : IconButton(
+                  icon: const Icon(Icons.phone, color: Colors.blue),
+                  onPressed: () {
+                    // Call functionality
+                  },
+                ),
       ),
+    );
+  }
+}
+
+// Dummy Profile Screen
+class ProfileScreen extends StatelessWidget {
+  const ProfileScreen({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Profile')),
+      body: const Center(child: Text('Profile Screen')),
     );
   }
 }
