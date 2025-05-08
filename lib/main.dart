@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'My Flutter Firebase App',
+      title: 'Vitawatch',
       theme: ThemeData(primarySwatch: Colors.deepPurple),
       home: StreamBuilder(
         stream: FirebaseAuth.instance.authStateChanges(),

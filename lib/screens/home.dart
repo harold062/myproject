@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myproject/screens/profile.dart';
-import 'package:myproject/settingFeatures/emergencyContact.dart'
-    as emergency; // Alias for EmergencyContactsScreen
+import 'package:myproject/screens/emergencyContact.dart' as emergency;
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -19,7 +18,6 @@ class _HomeScreenState extends State<HomeScreen> {
   String? userId;
   Map<String, dynamic>? userData;
   bool _isLoading = true;
-  bool _isSelected = false;
   int _currentIndex = 0; // Default to "Home" tab
 
   @override
@@ -70,9 +68,6 @@ class _HomeScreenState extends State<HomeScreen> {
         );
         break;
       case 2:
-        // Navigate to Favorites/Starred Screen
-        break;
-      case 3:
         // Navigate to Profile Screen
         Navigator.push(
           context,
@@ -84,97 +79,89 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Home',
-          style: TextStyle(fontWeight: FontWeight.bold),
-        ),
-        backgroundColor: Colors.deepPurple,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () {
-            Navigator.pop(context); // Navigate back to the previous screen
-          },
+    return Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [Colors.blue.shade300, Colors.blue.shade100.withOpacity(0.3)],
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
         ),
       ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : userData == null
-              ? const Center(
-                child: Text(
-                  'No user data found.',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
-                ),
-              )
-              : Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'User Information',
-                      style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.deepPurple,
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        appBar: AppBar(
+          title: const Text(
+            'Dashboard',
+            style: TextStyle(fontWeight: FontWeight.bold),
+          ),
+          centerTitle: true,
+          backgroundColor: Colors.transparent,
+        ),
+        body:
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : userData == null
+                ? const Center(
+                  child: Text(
+                    'No user data found.',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+                  ),
+                )
+                : Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 20),
+                      _buildInfoCard(
+                        icon: Icons.person,
+                        label: 'Name',
+                        value: userData!['name'] ?? 'N/A',
                       ),
-                    ),
-                    const SizedBox(height: 20),
-                    _buildInfoCard(
-                      icon: Icons.person,
-                      label: 'Name',
-                      value: userData!['name'] ?? 'N/A',
-                    ),
-                    const SizedBox(height: 10),
-                    _buildInfoCard(
-                      icon: Icons.account_circle,
-                      label: 'Username',
-                      value: userData!['uname'] ?? 'N/A',
-                    ),
-                    const SizedBox(height: 10),
-                    _buildInfoCard(
-                      icon: Icons.email,
-                      label: 'Email',
-                      value: userData!['email'] ?? 'N/A',
-                    ),
-                    const SizedBox(height: 10),
-                    _buildInfoCard(
-                      icon: Icons.badge,
-                      label: 'Role',
-                      value: userData!['role'] ?? 'N/A',
-                    ),
-                  ],
+                      const SizedBox(height: 10),
+                      _buildInfoCard(
+                        icon: Icons.account_circle,
+                        label: 'Username',
+                        value: userData!['uname'] ?? 'N/A',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildInfoCard(
+                        icon: Icons.email,
+                        label: 'Email',
+                        value: userData!['email'] ?? 'N/A',
+                      ),
+                      const SizedBox(height: 10),
+                      _buildInfoCard(
+                        icon: Icons.badge,
+                        label: 'Role',
+                        value: userData!['role'] ?? 'N/A',
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
-        onTap: _onTabTapped,
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor:
-            Colors.deepPurple, // Highlighted color for selected icon
-        unselectedItemColor: Colors.grey, // Color for unselected icons
-        showSelectedLabels: false, // Hide labels
-        showUnselectedLabels: false, // Hide labels
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: '', // No label
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.grid_view),
-            label: '', // No label
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.star),
-            label: '', // No label
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: '', // No label
-          ),
-        ],
+        bottomNavigationBar: BottomNavigationBar(
+          currentIndex: _currentIndex,
+          onTap: _onTabTapped,
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Colors.deepPurple,
+          unselectedItemColor: Colors.grey,
+          showSelectedLabels: false,
+          showUnselectedLabels: false,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home),
+              label: '', // No label
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.grid_view),
+              label: '', // No label
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: '', // No label
+            ),
+          ],
+        ),
       ),
     );
   }
