@@ -23,7 +23,6 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
   final TextEditingController medicationDetailsController =
       TextEditingController();
   final TextEditingController allergiesController = TextEditingController();
-  final TextEditingController none = TextEditingController();
   final TextEditingController otherCauseController = TextEditingController();
 
   bool hadSurgery = false;
@@ -63,9 +62,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       if (user != null) {
         DocumentSnapshot userDoc =
             await FirebaseFirestore.instance
-                .collection(
-                  'users',
-                ) // Ensure this matches your Firestore structure
+                .collection('users')
                 .doc(user.uid)
                 .get();
 
@@ -92,7 +89,6 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
                   medicalHistory[key] = value;
                 }
               });
-              // Load OtherCause if it exists
               if (history.containsKey('OtherCause')) {
                 otherCause = history['OtherCause'];
               }
@@ -119,7 +115,6 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
             historyToSave['OtherCause'] = otherCause;
           }
 
-          // Save the medical information in the "users" collection under the same document
           await FirebaseFirestore.instance
               .collection('users')
               .doc(user.uid)
@@ -144,11 +139,10 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
             ),
           );
 
-          // Fetch the updated data to ensure it remains consistent
           await _fetchMedicalInfo();
 
           setState(() {
-            isEditMode = false; // Exit edit mode after saving
+            isEditMode = false;
           });
         }
       } catch (e) {
@@ -197,16 +191,46 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
   Widget buildSection(String title, IconData icon, List<Widget> content) {
     return Card(
       margin: const EdgeInsets.only(bottom: 16),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-      elevation: 4,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+      color: Colors.white,
+      elevation: 0,
       child: ExpansionTile(
-        leading: Icon(icon, color: Colors.deepPurple),
+        leading: Icon(icon, color: Colors.indigo),
         title: Text(
           title,
-          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontSize: 18,
+            fontWeight: FontWeight.bold,
+            fontFamily: 'PlusJakartaSans',
+          ),
         ),
         children: content,
       ),
+    );
+  }
+
+  Widget buildListTile({
+    required IconData icon,
+    required String label,
+    required TextEditingController controller,
+    required bool isEditMode,
+    String? displayText,
+    String? hintText,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: Colors.indigo),
+      title:
+          isEditMode
+              ? TextFormField(
+                controller: controller,
+                decoration: InputDecoration(
+                  labelText: label,
+                  hintText: hintText,
+                ),
+              )
+              : Text(
+                '$label: ${controller.text.isEmpty ? displayText ?? "None" : controller.text}',
+              ),
     );
   }
 
@@ -216,12 +240,14 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       appBar: AppBar(
         title: const Text(
           'Patient Information Form',
-          style: TextStyle(color: Colors.white),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontFamily: 'PlusJakartSans',
+          ),
         ),
-        backgroundColor: Colors.deepPurple,
-        elevation: 4,
+        backgroundColor: Colors.blue.shade300,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () {
             Navigator.pushReplacement(
               context,
@@ -233,222 +259,176 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
           IconButton(
             icon: Icon(
               isEditMode ? Icons.save : Icons.edit,
-              color: Colors.white,
+              color: Colors.black,
             ),
             onPressed: () {
               if (isEditMode) {
-                _saveMedicalInfo(); // Save data and reload it
+                _saveMedicalInfo();
               } else {
                 setState(() {
-                  isEditMode = true; // Enter edit mode
+                  isEditMode = true;
                 });
               }
             },
           ),
         ],
       ),
-      body:
-          _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : Form(
-                key: _formKey,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: ListView(
-                    children: [
-                      buildSection('Personal Information', Icons.person, [
-                        ListTile(
-                          leading: const Icon(
-                            Icons.badge,
-                            color: Colors.deepPurple,
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [
+              Colors.blue.shade300,
+              Colors.blue.shade100.withOpacity(0.3),
+            ],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+        ),
+        child:
+            _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : Form(
+                  key: _formKey,
+                  child: Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: ListView(
+                      children: [
+                        buildSection('Personal Information', Icons.person, [
+                          buildListTile(
+                            icon: Icons.badge,
+                            label: 'Name',
+                            controller: nameController,
+                            isEditMode: isEditMode,
                           ),
-                          title:
-                              isEditMode
-                                  ? TextFormField(
-                                    controller: nameController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Name',
-                                    ),
-                                  )
-                                  : Text('Name: ${nameController.text}'),
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.calendar_today,
-                            color: Colors.deepPurple,
+                          buildListTile(
+                            icon: Icons.calendar_today,
+                            label: 'Date',
+                            controller: dateController,
+                            isEditMode: isEditMode,
                           ),
-                          title:
-                              isEditMode
-                                  ? TextFormField(
-                                    controller: dateController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Date',
-                                    ),
-                                  )
-                                  : Text('Date: ${dateController.text}'),
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.description,
-                            color: Colors.deepPurple,
+                          buildListTile(
+                            icon: Icons.description,
+                            label: 'Describe Problem',
+                            controller: problemController,
+                            isEditMode: isEditMode,
                           ),
-                          title:
-                              isEditMode
-                                  ? TextFormField(
-                                    controller: problemController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Describe Problem',
-                                    ),
-                                  )
-                                  : Text(
-                                    'Describe Problem: ${problemController.text}',
-                                  ),
-                        ),
-                      ]),
-                      buildSection('Cause of Current Problem', Icons.warning, [
-                        ...[
-                          'Car Accident',
-                          'Work Injury',
-                          'Gradual Onset',
-                          'None',
-                          'Other',
-                        ].map((cause) {
-                          return CheckboxListTile(
-                            title: Text(
-                              cause == 'Other' && otherCause != null
-                                  ? 'Other: $otherCause'
-                                  : cause,
-                            ),
-                            value: medicalHistory[cause] ?? false,
-                            onChanged:
-                                isEditMode
-                                    ? (value) {
-                                      setState(() {
-                                        medicalHistory[cause] = value!;
-                                      });
-                                      if (cause == 'Other' && value == true) {
-                                        _showOtherCauseDialog();
-                                      } else if (cause == 'Other' &&
-                                          value == false) {
-                                        otherCause = null;
-                                      }
-                                    }
-                                    : null,
-                          );
-                        }).toList(),
-                      ]),
-                      buildSection('Past Medical History', Icons.history, [
-                        ...medicalHistory.keys
-                            .where(
-                              (key) =>
-                                  ![
-                                    'Car Accident',
-                                    'Work Injury',
-                                    'Gradual Onset',
-                                    'None',
-                                    'Other',
-                                  ].contains(key),
-                            )
-                            .map((key) {
+                        ]),
+                        buildSection(
+                          'Cause of Current Problem',
+                          Icons.warning,
+                          [
+                            ...[
+                              'Car Accident',
+                              'Work Injury',
+                              'Gradual Onset',
+                              'None',
+                              'Other',
+                            ].map((cause) {
                               return CheckboxListTile(
-                                title: Text(key),
-                                value: medicalHistory[key],
+                                title: Text(
+                                  cause == 'Other' && otherCause != null
+                                      ? 'Other: $otherCause'
+                                      : cause,
+                                ),
+                                value: medicalHistory[cause] ?? false,
                                 onChanged:
                                     isEditMode
                                         ? (value) {
                                           setState(() {
-                                            medicalHistory[key] = value!;
+                                            medicalHistory[cause] = value!;
                                           });
+                                          if (cause == 'Other' &&
+                                              value == true) {
+                                            _showOtherCauseDialog();
+                                          } else if (cause == 'Other' &&
+                                              value == false) {
+                                            otherCause = null;
+                                          }
                                         }
                                         : null,
                               );
-                            })
-                            .toList(),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.local_hospital,
-                            color: Colors.deepPurple,
+                            }).toList(),
+                          ],
+                        ),
+                        buildSection('Past Medical History', Icons.history, [
+                          ...medicalHistory.keys
+                              .where(
+                                (key) =>
+                                    ![
+                                      'Car Accident',
+                                      'Work Injury',
+                                      'Gradual Onset',
+                                      'None',
+                                      'Other',
+                                    ].contains(key),
+                              )
+                              .map((key) {
+                                return CheckboxListTile(
+                                  title: Text(key),
+                                  value: medicalHistory[key],
+                                  onChanged:
+                                      isEditMode
+                                          ? (value) {
+                                            setState(() {
+                                              medicalHistory[key] = value!;
+                                            });
+                                          }
+                                          : null,
+                                );
+                              })
+                              .toList(),
+                          buildListTile(
+                            icon: Icons.local_hospital,
+                            label: 'Surgeries / Hospitalizations',
+                            controller: surgeryDetailsController,
+                            isEditMode: isEditMode,
                           ),
-                          title:
-                              isEditMode
-                                  ? TextFormField(
-                                    controller: surgeryDetailsController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Surgeries / Hospitalizations',
-                                    ),
-                                  )
-                                  : Text(
-                                    'Surgeries / Hospitalizations: ${surgeryDetailsController.text.isEmpty ? "None" : surgeryDetailsController.text}',
-                                  ),
-                        ),
-                      ]),
-                      buildSection('Medications', Icons.medication, [
-                        CheckboxListTile(
-                          title: const Text('No Medication'),
-                          value: noMedication,
-                          onChanged:
-                              isEditMode
-                                  ? (value) {
-                                    setState(() {
-                                      noMedication = value!;
-                                    });
-                                  }
-                                  : null,
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.medical_services,
-                            color: Colors.deepPurple,
+                        ]),
+                        buildSection('Medications', Icons.medication, [
+                          CheckboxListTile(
+                            title: const Text('No Medication'),
+                            value: noMedication,
+                            onChanged:
+                                isEditMode
+                                    ? (value) {
+                                      setState(() {
+                                        noMedication = value!;
+                                      });
+                                    }
+                                    : null,
                           ),
-                          title:
-                              isEditMode
-                                  ? TextFormField(
-                                    controller: medicationDetailsController,
-                                    decoration: const InputDecoration(
-                                      labelText:
-                                          'Medications (Name, Dose, Reason)',
-                                    ),
-                                  )
-                                  : Text(
-                                    'Medications: ${medicationDetailsController.text.isEmpty ? "None" : medicationDetailsController.text}',
-                                  ),
-                        ),
-                      ]),
-                      buildSection('Allergies', Icons.warning_amber, [
-                        CheckboxListTile(
-                          title: const Text('No Known Allergies'),
-                          value: noAllergies,
-                          onChanged:
-                              isEditMode
-                                  ? (value) {
-                                    setState(() {
-                                      noAllergies = value!;
-                                    });
-                                  }
-                                  : null,
-                        ),
-                        ListTile(
-                          leading: const Icon(
-                            Icons.warning_amber,
-                            color: Colors.deepPurple,
+                          buildListTile(
+                            icon: Icons.medical_services,
+                            label: 'Medications (Name, Dose, Reason)',
+                            controller: medicationDetailsController,
+                            isEditMode: isEditMode,
                           ),
-                          title:
-                              isEditMode
-                                  ? TextFormField(
-                                    controller: allergiesController,
-                                    decoration: const InputDecoration(
-                                      labelText: 'Allergies',
-                                    ),
-                                  )
-                                  : Text(
-                                    'Allergies: ${allergiesController.text.isEmpty ? "None" : allergiesController.text}',
-                                  ),
-                        ),
-                      ]),
-                    ],
+                        ]),
+                        buildSection('Allergies', Icons.warning_amber, [
+                          CheckboxListTile(
+                            title: const Text('No Known Allergies'),
+                            value: noAllergies,
+                            onChanged:
+                                isEditMode
+                                    ? (value) {
+                                      setState(() {
+                                        noAllergies = value!;
+                                      });
+                                    }
+                                    : null,
+                          ),
+                          buildListTile(
+                            icon: Icons.warning_amber,
+                            label: 'Allergies',
+                            controller: allergiesController,
+                            isEditMode: isEditMode,
+                          ),
+                        ]),
+                      ],
+                    ),
                   ),
                 ),
-              ),
+      ),
     );
   }
 }
