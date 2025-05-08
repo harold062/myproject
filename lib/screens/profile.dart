@@ -1,11 +1,12 @@
-import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:myproject/profileFeatures/currentMed.dart';
 import 'package:myproject/profileFeatures/medicalCond.dart';
 import 'package:myproject/profileFeatures/medicalInfo.dart';
-import 'package:myproject/profileFeatures/settings.dart' as settings;
 import 'package:myproject/screens/login.dart';
+import 'package:myproject/profileFeatures/settings.dart' as setting;
+
+import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({Key? key}) : super(key: key);
@@ -20,6 +21,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   Map<String, dynamic>? profileData;
   bool _isLoading = true;
+  String?
+  selectedAvatarUrl; // This will hold the avatar URL fetched from Firestore
 
   @override
   void initState() {
@@ -37,6 +40,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         if (userDoc.exists) {
           setState(() {
             profileData = userDoc.data() as Map<String, dynamic>;
+            selectedAvatarUrl =
+                profileData!['profileImage']; // Load avatar URL from Firestore
             _isLoading = false;
           });
         } else {
@@ -114,15 +119,24 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           children: [
                             Row(
                               children: [
-                                const CircleAvatar(
-                                  radius: 40,
-                                  backgroundColor: Colors.indigo,
-                                  child: Icon(
-                                    Icons.person,
-                                    size: 40,
-                                    color: Colors.white,
-                                  ),
-                                ),
+                                // Display the profile avatar from Firestore
+                                selectedAvatarUrl != null
+                                    ? CircleAvatar(
+                                      radius: 40,
+                                      backgroundImage: NetworkImage(
+                                        selectedAvatarUrl ??
+                                            'https://i.imgur.com/G5PevHF.jpg', // Default avatar
+                                      ),
+                                    )
+                                    : const CircleAvatar(
+                                      radius: 40,
+                                      backgroundColor: Colors.indigo,
+                                      child: Icon(
+                                        Icons.person,
+                                        size: 40,
+                                        color: Colors.white,
+                                      ),
+                                    ),
                                 const SizedBox(width: 16),
                                 Expanded(
                                   child: Column(
@@ -227,7 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 context,
                                 MaterialPageRoute(
                                   builder:
-                                      (context) => const settings.Settings(),
+                                      (context) => const setting.Settings(),
                                 ),
                               );
                             },
