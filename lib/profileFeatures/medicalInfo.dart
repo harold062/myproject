@@ -62,7 +62,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
       if (user != null) {
         DocumentSnapshot userDoc =
             await FirebaseFirestore.instance
-                .collection('users')
+                .collection('patient')
                 .doc(user.uid)
                 .get();
 
@@ -116,7 +116,7 @@ class _MedicalInfoScreenState extends State<MedicalInfoScreen> {
           }
 
           await FirebaseFirestore.instance
-              .collection('users')
+              .collection('patient')
               .doc(user.uid)
               .update({
                 'medicalInfo': {

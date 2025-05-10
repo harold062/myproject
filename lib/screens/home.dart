@@ -33,7 +33,7 @@ class _HomeScreenState extends State<HomeScreen> {
       if (user != null) {
         userId = user.uid;
         DocumentSnapshot userDoc =
-            await _firestore.collection('users').doc(userId).get();
+            await _firestore.collection('patient').doc(userId).get();
 
         if (userDoc.exists) {
           setState(() {

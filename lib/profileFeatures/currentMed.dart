@@ -60,7 +60,7 @@ class _CurrentMedicationScreenState extends State<CurrentMedicationScreen> {
       User? user = FirebaseAuth.instance.currentUser;
       if (user != null) {
         await FirebaseFirestore.instance
-            .collection('users')
+            .collection('patient')
             .doc(user.uid)
             .update({'medications': medications});
       }

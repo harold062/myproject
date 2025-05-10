@@ -56,7 +56,7 @@ class _SignUpPageState extends State<SignUpPage> {
 
           // Store user data in Firestore
           await FirebaseFirestore.instance
-              .collection('users')
+              .collection('patient')
               .doc(user.uid)
               .set({
                 'email': email,

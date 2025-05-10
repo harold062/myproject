@@ -77,7 +77,7 @@ class _MedicationDetailsScreenState extends State<MedicationDetailsScreen> {
 
           // Save the updated list back to Firestore
           await FirebaseFirestore.instance
-              .collection('users')
+              .collection('patient')
               .doc(user.uid)
               .update({'medications': medications});
 

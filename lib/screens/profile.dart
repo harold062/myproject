@@ -35,7 +35,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
       User? user = _auth.currentUser;
       if (user != null) {
         DocumentSnapshot userDoc =
-            await _firestore.collection('users').doc(user.uid).get();
+            await _firestore.collection('patient').doc(user.uid).get();
 
         if (userDoc.exists) {
           setState(() {
