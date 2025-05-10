@@ -41,56 +41,51 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyAFlTqZs0B6CiApo8hXIc-CalEHifpTplw',
-    appId: '1:893054429893:web:2f4563ac13fbda8f855eac',
-    messagingSenderId: '893054429893',
-    projectId: 'vitawatch-aa8d2',
-    authDomain: 'vitawatch-aa8d2.firebaseapp.com',
-    databaseURL: 'https://vitawatch-aa8d2-default-rtdb.firebaseio.com',
-    storageBucket: 'vitawatch-aa8d2.firebasestorage.app',
-    measurementId: 'G-2CYVNXSQRE',
+    apiKey: 'AIzaSyD9Fj3zp6_x0pBHZ3eLNNIQ2cQZfGRwZfQ',
+    appId: '1:402256817172:web:872b958ab40f8462f24b01',
+    messagingSenderId: '402256817172',
+    projectId: 'vitawatch',
+    authDomain: 'vitawatch.firebaseapp.com',
+    storageBucket: 'vitawatch.firebasestorage.app',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyCKKU52sHk7ht-UHn9HDl_I-dzoF4hdWts',
-    appId: '1:893054429893:android:bce2ab6f88187bc4855eac',
-    messagingSenderId: '893054429893',
-    projectId: 'vitawatch-aa8d2',
-    databaseURL: 'https://vitawatch-aa8d2-default-rtdb.firebaseio.com',
-    storageBucket: 'vitawatch-aa8d2.firebasestorage.app',
+    apiKey: 'AIzaSyAyyyZIs2kGwFeamXu76Yd4KTfhSpO6SBQ',
+    appId: '1:402256817172:android:f1ab33f2ab4f05eff24b01',
+    messagingSenderId: '402256817172',
+    projectId: 'vitawatch',
+    storageBucket: 'vitawatch.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyBUlayiEQU0sGs584-RQXNzGuQwParu-Vw',
-    appId: '1:893054429893:ios:813dc2037c59c804855eac',
-    messagingSenderId: '893054429893',
-    projectId: 'vitawatch-aa8d2',
-    databaseURL: 'https://vitawatch-aa8d2-default-rtdb.firebaseio.com',
-    storageBucket: 'vitawatch-aa8d2.firebasestorage.app',
-    iosClientId: '893054429893-n2dm1a5i7afscpuku7olrn7594q0lfjp.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAWS1qqPWf-2VV7xZs1WwDUi-Fvc6thNHw',
+    appId: '1:402256817172:ios:5b5b2bfadde0df99f24b01',
+    messagingSenderId: '402256817172',
+    projectId: 'vitawatch',
+    storageBucket: 'vitawatch.firebasestorage.app',
+    androidClientId: '402256817172-o9fd80u7sjk7pmn2lq1epf11ufe4ppeu.apps.googleusercontent.com',
+    iosClientId: '402256817172-vqjiuqjctisi20ssin8ne4m9i4hdpeea.apps.googleusercontent.com',
     iosBundleId: 'com.example.myproject',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
-    apiKey: 'AIzaSyBUlayiEQU0sGs584-RQXNzGuQwParu-Vw',
-    appId: '1:893054429893:ios:813dc2037c59c804855eac',
-    messagingSenderId: '893054429893',
-    projectId: 'vitawatch-aa8d2',
-    databaseURL: 'https://vitawatch-aa8d2-default-rtdb.firebaseio.com',
-    storageBucket: 'vitawatch-aa8d2.firebasestorage.app',
-    iosClientId: '893054429893-n2dm1a5i7afscpuku7olrn7594q0lfjp.apps.googleusercontent.com',
+    apiKey: 'AIzaSyAWS1qqPWf-2VV7xZs1WwDUi-Fvc6thNHw',
+    appId: '1:402256817172:ios:5b5b2bfadde0df99f24b01',
+    messagingSenderId: '402256817172',
+    projectId: 'vitawatch',
+    storageBucket: 'vitawatch.firebasestorage.app',
+    androidClientId: '402256817172-o9fd80u7sjk7pmn2lq1epf11ufe4ppeu.apps.googleusercontent.com',
+    iosClientId: '402256817172-vqjiuqjctisi20ssin8ne4m9i4hdpeea.apps.googleusercontent.com',
     iosBundleId: 'com.example.myproject',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(
-    apiKey: 'AIzaSyAFlTqZs0B6CiApo8hXIc-CalEHifpTplw',
-    appId: '1:893054429893:web:fb233eb5fb172d83855eac',
-    messagingSenderId: '893054429893',
-    projectId: 'vitawatch-aa8d2',
-    authDomain: 'vitawatch-aa8d2.firebaseapp.com',
-    databaseURL: 'https://vitawatch-aa8d2-default-rtdb.firebaseio.com',
-    storageBucket: 'vitawatch-aa8d2.firebasestorage.app',
-    measurementId: 'G-YFYWNG75K7',
+    apiKey: 'AIzaSyD9Fj3zp6_x0pBHZ3eLNNIQ2cQZfGRwZfQ',
+    appId: '1:402256817172:web:2fe37a7cc7f5635af24b01',
+    messagingSenderId: '402256817172',
+    projectId: 'vitawatch',
+    authDomain: 'vitawatch.firebaseapp.com',
+    storageBucket: 'vitawatch.firebasestorage.app',
   );
 
 }

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "402256817172",
+    "project_id": "vitawatch",
+    "storage_bucket": "vitawatch.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:402256817172:android:deadd0ef8d224575f24b01",
+        "android_client_info": {
+          "package_name": "com.example.se2_fin_hmeas"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "402256817172-o9fd80u7sjk7pmn2lq1epf11ufe4ppeu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.se2_fin_hmeas",
+            "certificate_hash": "26bec88fdb5b86a35f6186017b881ee40fdb35c9"
+          }
+        },
+        {
+          "client_id": "402256817172-j8h58ptlbjc9fe8hqri2tj3k4eng5nko.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAyyyZIs2kGwFeamXu76Yd4KTfhSpO6SBQ"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "402256817172-j8h58ptlbjc9fe8hqri2tj3k4eng5nko.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "402256817172-u5e9q8bpb4215f8aj4ctcn9d6cp3f270.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.se2FinHmeas"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

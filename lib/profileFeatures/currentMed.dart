@@ -94,7 +94,7 @@ class _CurrentMedicationScreenState extends State<CurrentMedicationScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text(
-          'Medicine Reminder',
+          'Medicine',
           style: TextStyle(color: Colors.white, fontSize: 20),
         ),
         flexibleSpace: const FlexibleSpaceBar(

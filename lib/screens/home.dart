@@ -74,6 +74,11 @@ class _HomeScreenState extends State<HomeScreen> {
           MaterialPageRoute(builder: (context) => const ProfileScreen()),
         );
         break;
+      case 3:
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+        );
     }
   }
 
@@ -160,6 +165,7 @@ class _HomeScreenState extends State<HomeScreen> {
               icon: Icon(Icons.person),
               label: '', // No label
             ),
+            BottomNavigationBarItem(icon: Icon(Icons.gps_fixed), label: ''),
           ],
         ),
       ),
