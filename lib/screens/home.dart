@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:myproject/screens/gps.dart';
 import 'package:myproject/screens/profile.dart';
 import 'package:myproject/screens/emergencyContact.dart' as emergency;
 
@@ -77,7 +78,7 @@ class _HomeScreenState extends State<HomeScreen> {
       case 3:
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => const ProfileScreen()),
+          MaterialPageRoute(builder: (context) => GPSDemo()),
         );
     }
   }
