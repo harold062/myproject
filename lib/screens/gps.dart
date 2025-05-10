@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:intl/intl.dart'; // Import this to format the time
+import 'package:geocoding/geocoding.dart'; // Import geocoding package
 
 class GPSDemo extends StatefulWidget {
   @override
@@ -47,27 +48,76 @@ class _GPSDemoState extends State<GPSDemo> {
       return;
     }
 
-    // Get current position
-    Position position = await Geolocator.getCurrentPosition(
-      desiredAccuracy: LocationAccuracy.high,
-    );
+    try {
+      // Get current position
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      );
 
-    // Get the current time
-    String formattedTime = DateFormat(
-      'yyyy-MM-dd HH:mm:ss',
-    ).format(DateTime.now());
+      // Get the current time
+      String formattedTime = DateFormat(
+        'yyyy-MM-dd HH:mm:ss',
+      ).format(DateTime.now());
+      String address = 'Unknown';
+      String nearestKnown = ''; // To hold the nearest address
 
-    // Update the UI with the location and time
-    setState(() {
-      _location = 'Lat: ${position.latitude}, Lon: ${position.longitude}';
-      _time = 'Time: $formattedTime';
-    });
+      try {
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
+
+        // Try to find a suitable placemark
+        for (var place in placemarks) {
+          final composedAddress =
+              '${place.name?.isNotEmpty == true ? place.name! + ', ' : ''}'
+              '${place.locality?.isNotEmpty == true ? place.locality! + ', ' : ''}'
+              '${place.administrativeArea?.isNotEmpty == true ? place.administrativeArea! + ', ' : ''}'
+              '${place.country ?? ''}';
+
+          // If the main address is unknown and we find any address, store it as nearestKnown
+          if (address == 'Unknown' && composedAddress.trim().isNotEmpty) {
+            nearestKnown = composedAddress;
+          }
+
+          // If we find a detailed address, use it as the main address
+          if (place.name?.isNotEmpty == true &&
+              place.locality?.isNotEmpty == true &&
+              place.administrativeArea?.isNotEmpty == true) {
+            address = composedAddress;
+            break;
+          }
+        }
+      } catch (e) {
+        // address remains 'Unknown'
+      }
+
+      // Prepare the display text
+      String displayText =
+          'Address: $address\n'
+          'Lat: ${position.latitude}, Lon: ${position.longitude}\n'
+          'Time: $formattedTime';
+
+      if (address == 'Unknown' && nearestKnown.isNotEmpty) {
+        displayText += '\nNearest address known: $nearestKnown';
+      }
+
+      setState(() {
+        _location = displayText;
+        _time = ''; // We already include the time in _location
+      });
+    } catch (e) {
+      setState(() {
+        _location = 'Failed to get location: $e';
+        _time = '';
+      });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Patient Location")),
+      appBar: AppBar(title: Text("GPS Location")),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -79,7 +129,7 @@ class _GPSDemoState extends State<GPSDemo> {
             ),
             SizedBox(height: 20),
             Text(
-              _time, // Time displayed here
+              _time, // Time displayed here (if needed)
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18),
             ),
